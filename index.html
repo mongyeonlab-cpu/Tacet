@@ -1752,15 +1752,15 @@
             justify-content: center;
         }
         
-        .dialogue-frame::before {
-            content: '♪';
+        .speaker-indicator {
             position: absolute;
-            top: -8px;
+            top: -10px;
             left: 15px;
             color: #d4af37;
-            font-size: 11px;
+            font-size: 13px;
             background: rgba(10, 10, 26, 1);
-            padding: 0 5px;
+            padding: 0 10px;
+            letter-spacing: 2px;
         }
         
         .dialogue-text {
@@ -1775,15 +1775,9 @@
             color: rgba(212, 175, 55, 0.7);
         }
         
-        /* 침묵 표시 */
+        /* 침묵 표시 - 사용 안 함 */
         .silence-indicator {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            color: rgba(201, 209, 217, 0.25);
-            font-size: 11px;
-            letter-spacing: 3px;
-            z-index: 4;
+            display: none !important;
         }
         
         /* 선택지 */
@@ -1792,34 +1786,60 @@
             left: 50%;
             transform: translateX(-50%);
             display: flex;
+            gap: 20px;
             z-index: 4;
         }
         
         .choice-btn {
-            border-radius: 50%;
-            background: rgba(10, 10, 26, 0.8);
-            border: 2px solid rgba(212, 175, 55, 0.3);
+            background: transparent;
+            border: none;
             cursor: pointer;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
             align-items: center;
+            gap: 0;
             transition: all 0.3s ease;
+            padding: 8px 0;
         }
         
         .choice-btn:hover {
-            border-color: #d4af37;
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
             transform: scale(1.08);
         }
         
+        .choice-btn:hover .choice-label {
+            color: #fff;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+        
+        .choice-btn:hover .choice-bracket {
+            color: #d4af37;
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+        }
+        
         .choice-icon {
-            color: #c9d1d9;
+            display: none;
+        }
+        
+        .choice-bracket {
+            color: rgba(212, 175, 55, 0.6);
+            font-size: 28px;
+            font-weight: 100;
+            line-height: 1;
+            transition: all 0.3s ease;
+        }
+        
+        .choice-bracket.left {
+            margin-right: 8px;
+        }
+        
+        .choice-bracket.right {
+            margin-left: 8px;
         }
         
         .choice-label {
-            color: rgba(201, 209, 217, 0.5);
-            letter-spacing: 1px;
+            color: rgba(201, 209, 217, 0.6);
+            font-size: 13px;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
         }
         
         /* ==================== */
@@ -1908,27 +1928,21 @@
             max-width: 320px;
         }
         
-        .silence-indicator {
-            bottom: 80px;
-        }
-        
         .choices-area {
-            bottom: 15px;
-            gap: 50px;
+            bottom: 50px;
+            gap: 30px;
         }
         
         .choice-btn {
-            width: 65px;
-            height: 65px;
+            /* 초승달 괄호 스타일 */
         }
         
-        .choice-icon {
-            font-size: 22px;
-            margin-bottom: 2px;
+        .choice-bracket {
+            font-size: 24px;
         }
         
         .choice-label {
-            font-size: 9px;
+            font-size: 11px;
         }
         
         /* PC 양쪽 장식 (기본 숨김) */
@@ -2086,28 +2100,21 @@
                 font-size: 15px;
             }
             
-            .silence-indicator {
-                bottom: 88px;
-                font-size: 12px;
-            }
-            
             .choices-area {
-                bottom: 20px;
-                gap: 80px;
+                bottom: 55px;
+                gap: 50px;
             }
             
             .choice-btn {
-                width: 75px;
-                height: 75px;
+                /* 초승달 괄호 스타일 */
             }
             
-            .choice-icon {
-                font-size: 26px;
-                margin-bottom: 3px;
+            .choice-bracket {
+                font-size: 32px;
             }
             
             .choice-label {
-                font-size: 10px;
+                font-size: 14px;
             }
             
             /* 양쪽 장식 표시 */
@@ -2274,9 +2281,125 @@
             }
         }
         
+        /* ===== 전체화면 모드 (오프닝/엔딩용) ===== */
+        .fullscreen-mode .game-wrapper {
+            background: #000;
+        }
+        
+        .fullscreen-mode .game-container {
+            display: none !important;
+        }
+        
+        .fullscreen-mode .title,
+        .fullscreen-mode .settings-btn,
+        .fullscreen-mode .orbital-system,
+        .fullscreen-mode .bg-stars,
+        .fullscreen-mode .side-decoration {
+            display: none !important;
+        }
+        
+        /* 전체화면 오버레이 */
+        .fullscreen-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #000;
+            z-index: 2000;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .fullscreen-mode .fullscreen-overlay {
+            display: flex;
+        }
+        
+        /* 전체화면 대사 */
+        .fullscreen-dialogue {
+            max-width: 600px;
+            padding: 0 40px;
+            text-align: center;
+        }
+        
+        .fullscreen-text {
+            color: rgba(201, 209, 217, 0.9);
+            font-size: 16px;
+            line-height: 2;
+            letter-spacing: 2px;
+            opacity: 0;
+            animation: fullscreen-fade-in 0.8s ease forwards;
+        }
+        
+        @keyframes fullscreen-fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fullscreen-speaker {
+            color: rgba(201, 209, 217, 0.5);
+            font-size: 12px;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+        }
+        
+        /* 전체화면 선택지 */
+        .fullscreen-choices {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 50px;
+            align-items: center;
+        }
+        
+        .fullscreen-choice-btn {
+            background: transparent;
+            border: 1px solid rgba(201, 209, 217, 0.3);
+            color: rgba(201, 209, 217, 0.8);
+            padding: 15px 50px;
+            font-size: 14px;
+            letter-spacing: 3px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            min-width: 200px;
+        }
+        
+        .fullscreen-choice-btn:hover {
+            background: rgba(201, 209, 217, 0.1);
+            border-color: rgba(201, 209, 217, 0.6);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(201, 209, 217, 0.2);
+        }
+        
+        /* 전체화면 클릭 안내 */
+        .fullscreen-click-hint {
+            position: absolute;
+            bottom: 50px;
+            color: rgba(201, 209, 217, 0.3);
+            font-size: 11px;
+            letter-spacing: 2px;
+            animation: pulse-hint 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-hint {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+        
     </style>
 </head>
 <body>
+    <!-- 전체화면 모드 오버레이 -->
+    <div class="fullscreen-overlay" id="fullscreenOverlay" onclick="handleFullscreenClick(event)">
+        <div class="fullscreen-dialogue">
+            <div class="fullscreen-speaker" id="fullscreenSpeaker"></div>
+            <div class="fullscreen-text" id="fullscreenText"></div>
+            <div class="fullscreen-choices" id="fullscreenChoices"></div>
+        </div>
+        <div class="fullscreen-click-hint" id="fullscreenHint">클릭하여 계속</div>
+    </div>
+    
     <div class="game-wrapper">
         <!-- 설정 버튼 (화면 전체 우측 상단) -->
         <div class="settings-btn" onclick="openSettings()">
@@ -2426,6 +2549,7 @@
                 <!-- 대사창 -->
                 <div class="dialogue-box">
                     <div class="dialogue-frame">
+                        <div class="speaker-indicator" id="speakerIndicator">♪</div>
                         <div class="dialogue-text">
                             <span class="quote">「</span> 배고프지 않아? <span class="quote">」</span>
                         </div>
@@ -2438,12 +2562,14 @@
                 <!-- 선택지 -->
                 <div class="choices-area">
                     <div class="choice-btn nod">
-                        <div class="choice-icon">↓</div>
+                        <span class="choice-bracket left">)</span>
                         <div class="choice-label">끄덕</div>
+                        <span class="choice-bracket right">(</span>
                     </div>
                     <div class="choice-btn shake">
-                        <div class="choice-icon">↔</div>
+                        <span class="choice-bracket left">)</span>
                         <div class="choice-label">젓기</div>
+                        <span class="choice-bracket right">(</span>
                     </div>
                 </div>
                 
@@ -2619,7 +2745,9 @@
             log: [],
             callStack: [],
             isAutoMode: false,
-            isSkipMode: false
+            isSkipMode: false,
+            fullscreenMode: false,
+            fullscreenCommonId: null
         };
         
         let isTyping = false;
@@ -2912,15 +3040,33 @@
         function initGame() {
             if (!scenario) return;
             
+            // timeline이 없으면 dayList에서 생성
+            if (!scenario.timeline) {
+                scenario.timeline = scenario.dayList.map(d => ({ type: 'day', id: d.id }));
+            }
+            
+            const firstItem = scenario.timeline[0];
+            
             gameState = {
-                currentDayId: scenario.dayList[0]?.id || 'day1',
+                currentDayId: firstItem?.id || scenario.dayList[0]?.id || 'day1',
                 currentIndex: 0,
+                timelineIndex: 0,
                 variables: {},
                 log: [],
                 callStack: [],
                 isAutoMode: false,
-                isSkipMode: false
+                isSkipMode: false,
+                fullscreenMode: false,
+                fullscreenCommonId: null
             };
+            
+            // 첫 아이템이 전체화면 커먼이면 활성화
+            if (firstItem?.type === 'common') {
+                const commonInfo = scenario.commonList?.find(c => c.id === firstItem.id);
+                if (commonInfo?.fullscreen) {
+                    enterFullscreenMode(firstItem.id);
+                }
+            }
             
             // BGM 정지
             if (bgmAudio) {
@@ -3026,8 +3172,63 @@
         
         function processNextEvent() {
             const events = getCurrentEvents();
-            if (gameState.currentIndex >= events.length) return;
+            if (gameState.currentIndex >= events.length) {
+                // 커먼 이벤트가 끝났으면 복귀 (call-common으로 호출된 경우)
+                if (gameState.callStack.length > 0) {
+                    // 전체화면 모드 종료 체크
+                    if (gameState.fullscreenMode && gameState.currentDayId === gameState.fullscreenCommonId) {
+                        exitFullscreenMode();
+                    }
+                    const ret = gameState.callStack.pop();
+                    gameState.currentDayId = ret.dayId;
+                    gameState.currentIndex = ret.index;
+                    processNextEvent();
+                    return;
+                }
+                
+                // 타임라인의 다음 아이템으로 이동
+                advanceTimeline();
+                return;
+            }
             processEvent(events[gameState.currentIndex]);
+        }
+        
+        function advanceTimeline() {
+            if (!scenario.timeline) return;
+            
+            // 전체화면 모드 종료
+            if (gameState.fullscreenMode) {
+                exitFullscreenMode();
+            }
+            
+            gameState.timelineIndex++;
+            
+            if (gameState.timelineIndex >= scenario.timeline.length) {
+                // 타임라인 끝 - 게임 종료
+                showEndingScreen();
+                return;
+            }
+            
+            const nextItem = scenario.timeline[gameState.timelineIndex];
+            gameState.currentDayId = nextItem.id;
+            gameState.currentIndex = 0;
+            
+            // 전체화면 커먼 체크
+            if (nextItem.type === 'common') {
+                const commonInfo = scenario.commonList?.find(c => c.id === nextItem.id);
+                if (commonInfo?.fullscreen) {
+                    enterFullscreenMode(nextItem.id);
+                }
+            }
+            
+            updateDateDisplay();
+            processNextEvent();
+        }
+        
+        function showEndingScreen() {
+            document.querySelector('.dialogue-text').innerHTML = `
+                <span class="quote">「</span> <span style="color: #d4af37; letter-spacing: 2px;">T H E   E N D</span> <span class="quote">」</span>
+            `;
         }
         
         function processEvent(event) {
@@ -3180,9 +3381,21 @@
         
         // ===== 대사 표시 =====
         function showDialogue(event) {
+            // 전체화면 모드
+            if (gameState.fullscreenMode) {
+                const char = scenario.characters?.find(c => c.id === event.speaker);
+                const speakerName = char?.name || event.speaker;
+                showFullscreenDialogue(speakerName, event.text || '');
+                addToLog(event);
+                return; // 클릭으로 다음 진행
+            }
+            
             document.querySelector('.dialogue-box').style.display = 'block';
             document.querySelector('.choices-area').style.display = 'none';
             document.querySelector('.silence-indicator').style.display = 'none';
+            
+            // 화자 표시 업데이트
+            updateSpeakerIndicator(event.speaker);
             
             currentText = event.text || '';
             displayedText = '';
@@ -3196,6 +3409,21 @@
             } else {
                 isTyping = true;
                 typeText(event);
+            }
+        }
+        
+        function updateSpeakerIndicator(speakerId) {
+            const indicator = document.getElementById('speakerIndicator');
+            if (!indicator) return;
+            
+            // 나레이션이면 음표 표시
+            if (!speakerId || speakerId === 'narration' || speakerId === '나레이션') {
+                indicator.textContent = '♪';
+            } else {
+                // 캐릭터 이름 찾기
+                const char = scenario.characters?.find(c => c.id === speakerId);
+                const name = char?.name || speakerId;
+                indicator.textContent = name;
             }
         }
         
@@ -3234,6 +3462,18 @@
                 i++;
             }
             
+            // 전체화면 모드
+            if (gameState.fullscreenMode) {
+                gameState.waitingForChoice = true;
+                gameState.choiceBranches = branches;
+                const choices = branches.map((b, idx) => ({
+                    label: b.event.label || `선택 ${idx + 1}`,
+                    index: b.index
+                }));
+                showFullscreenChoices(choices);
+                return;
+            }
+            
             const choicesArea = document.querySelector('.choices-area');
             choicesArea.innerHTML = '';
             
@@ -3241,13 +3481,14 @@
                 const btn = document.createElement('div');
                 btn.className = 'choice-btn ' + (b.event.choiceType || '');
                 
-                let icon = '●', label = b.event.label || `선택 ${idx + 1}`;
-                if (b.event.choiceType === 'nod') { icon = '↓'; label = '끄덕'; }
-                else if (b.event.choiceType === 'shake') { icon = '↔'; label = '젓기'; }
+                let label = b.event.label || `선택 ${idx + 1}`;
+                if (b.event.choiceType === 'nod') { label = '끄덕'; }
+                else if (b.event.choiceType === 'shake') { label = '젓기'; }
                 
                 btn.innerHTML = `
-                    <div class="choice-icon">${icon}</div>
+                    <span class="choice-bracket left">)</span>
                     <div class="choice-label">${label}</div>
+                    <span class="choice-bracket right">(</span>
                 `;
                 btn.onclick = () => selectChoice(b.index);
                 choicesArea.appendChild(btn);
@@ -3259,6 +3500,8 @@
         }
         
         function selectChoice(branchIndex) {
+            gameState.waitingForChoice = false;
+            
             const branch = getCurrentEvents()[branchIndex];
             if (branch.effects) {
                 Object.entries(branch.effects).forEach(([k, v]) => {
@@ -3269,6 +3512,13 @@
             
             document.querySelector('.choices-area').style.display = 'none';
             document.querySelector('.silence-indicator').style.display = 'none';
+            
+            // 전체화면 모드에서 선택지 클리어
+            if (gameState.fullscreenMode) {
+                document.getElementById('fullscreenChoices').innerHTML = '';
+                document.getElementById('fullscreenHint').style.display = 'block';
+            }
+            
             gameState.currentIndex = branchIndex + 1;
             processNextEvent();
         }
@@ -3436,15 +3686,94 @@
             gameState.callStack.push({ dayId: gameState.currentDayId, index: gameState.currentIndex + 1 });
             gameState.currentDayId = event.commonId;
             gameState.currentIndex = 0;
+            
+            // 전체화면 모드 체크
+            const commonInfo = scenario.commonList?.find(c => c.id === event.commonId);
+            if (commonInfo?.fullscreen) {
+                enterFullscreenMode(event.commonId);
+            }
+            
             processNextEvent();
         }
         
         function handleReturn() {
+            // 전체화면 모드 종료 체크
+            if (gameState.fullscreenMode && gameState.currentDayId === gameState.fullscreenCommonId) {
+                exitFullscreenMode();
+            }
+            
             if (gameState.callStack.length === 0) { gameState.currentIndex++; processNextEvent(); return; }
             const ret = gameState.callStack.pop();
             gameState.currentDayId = ret.dayId;
             gameState.currentIndex = ret.index;
             processNextEvent();
+        }
+        
+        // ===== 전체화면 모드 =====
+        function enterFullscreenMode(commonId) {
+            gameState.fullscreenMode = true;
+            gameState.fullscreenCommonId = commonId;
+            document.body.classList.add('fullscreen-mode');
+        }
+        
+        function exitFullscreenMode() {
+            gameState.fullscreenMode = false;
+            gameState.fullscreenCommonId = null;
+            document.body.classList.remove('fullscreen-mode');
+            document.getElementById('fullscreenChoices').innerHTML = '';
+        }
+        
+        function showFullscreenDialogue(speaker, text) {
+            const speakerEl = document.getElementById('fullscreenSpeaker');
+            const textEl = document.getElementById('fullscreenText');
+            const hintEl = document.getElementById('fullscreenHint');
+            const choicesEl = document.getElementById('fullscreenChoices');
+            
+            choicesEl.innerHTML = '';
+            hintEl.style.display = 'block';
+            
+            // 화자 표시 (나레이션은 숨김)
+            if (speaker && speaker !== '나레이션' && speaker !== 'narration') {
+                speakerEl.textContent = speaker;
+                speakerEl.style.display = 'block';
+            } else {
+                speakerEl.style.display = 'none';
+            }
+            
+            // 텍스트 애니메이션 리셋
+            textEl.style.animation = 'none';
+            textEl.offsetHeight; // 리플로우 트리거
+            textEl.style.animation = 'fullscreen-fade-in 0.8s ease forwards';
+            textEl.textContent = text;
+        }
+        
+        function showFullscreenChoices(choices) {
+            const choicesEl = document.getElementById('fullscreenChoices');
+            const hintEl = document.getElementById('fullscreenHint');
+            
+            hintEl.style.display = 'none';
+            choicesEl.innerHTML = '';
+            
+            choices.forEach((choice, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'fullscreen-choice-btn';
+                btn.textContent = choice.label;
+                btn.onclick = (e) => {
+                    e.stopPropagation();
+                    selectChoice(choice.index); // 실제 branch index 사용
+                };
+                choicesEl.appendChild(btn);
+            });
+        }
+        
+        function handleFullscreenClick(event) {
+            if (event.target.classList.contains('fullscreen-choice-btn')) return;
+            
+            // 클릭으로 다음 진행
+            if (!gameState.waitingForChoice) {
+                gameState.currentIndex++;
+                processNextEvent();
+            }
         }
         
         // ===== 엔딩 =====
