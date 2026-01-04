@@ -264,7 +264,7 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 0;
+            z-index: 200;
             opacity: 0;
             visibility: hidden;
         }
@@ -1736,6 +1736,11 @@
         let currentText = '';
         let displayedText = '';
         
+        // ===== 오디오 =====
+        let bgmAudio = null;
+        let bgmVolume = 0.5;
+        let sfxVolume = 0.7;
+        
         // ===== 자동 시나리오 로드 =====
         window.addEventListener('DOMContentLoaded', async function() {
             try {
@@ -1837,6 +1842,12 @@
                 isSkipMode: false
             };
             
+            // BGM 정지
+            if (bgmAudio) {
+                bgmAudio.pause();
+                bgmAudio = null;
+            }
+            
             updateDateDisplay();
             updateGauges();
             document.getElementById('loadScreen').classList.add('hidden');
@@ -1889,6 +1900,9 @@
                 case 'background': handleBackground(event); break;
                 case 'character': handleCharacter(event); break;
                 case 'character-hide': handleCharacterHide(event); break;
+                case 'bgm': handleBGM(event); break;
+                case 'bgm-stop': handleBGMStop(event); break;
+                case 'sfx': handleSFX(event); break;
                 default:
                     gameState.currentIndex++;
                     processNextEvent();
@@ -1950,6 +1964,55 @@
             } else {
                 // 전체 숨기기
                 standingArea.innerHTML = '';
+            }
+            
+            gameState.currentIndex++;
+            processNextEvent();
+        }
+        
+        // ===== BGM =====
+        function handleBGM(event) {
+            // 기존 BGM 정지
+            if (bgmAudio) {
+                bgmAudio.pause();
+                bgmAudio = null;
+            }
+            
+            if (event.file) {
+                bgmAudio = new Audio(event.file);
+                bgmAudio.loop = true;
+                bgmAudio.volume = bgmVolume;
+                bgmAudio.play().catch(e => console.log('BGM 재생 실패:', e));
+            }
+            
+            gameState.currentIndex++;
+            processNextEvent();
+        }
+        
+        function handleBGMStop(event) {
+            if (bgmAudio) {
+                // 페이드아웃
+                const fadeOut = setInterval(() => {
+                    if (bgmAudio.volume > 0.1) {
+                        bgmAudio.volume -= 0.1;
+                    } else {
+                        clearInterval(fadeOut);
+                        bgmAudio.pause();
+                        bgmAudio = null;
+                    }
+                }, 100);
+            }
+            
+            gameState.currentIndex++;
+            processNextEvent();
+        }
+        
+        // ===== SFX =====
+        function handleSFX(event) {
+            if (event.file) {
+                const sfx = new Audio(event.file);
+                sfx.volume = sfxVolume;
+                sfx.play().catch(e => console.log('SFX 재생 실패:', e));
             }
             
             gameState.currentIndex++;
