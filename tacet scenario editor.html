@@ -1224,15 +1224,18 @@
             <!-- Day 리스트 -->
             <div class="panel-content active" id="panelDays">
                 <div class="sub-tabs" style="display: flex; border-bottom: 1px solid #3c3c3c; margin-bottom: 8px;">
-                    <div class="sub-tab active" id="subTabDay" onclick="switchDayMode('day')" 
-                         style="flex: 1; padding: 6px; text-align: center; cursor: pointer; font-size: 11px; background: #2d2d30;">Day</div>
+                    <div class="sub-tab active" id="subTabTimeline" onclick="switchDayMode('timeline')" 
+                         style="flex: 1; padding: 6px; text-align: center; cursor: pointer; font-size: 11px; background: #2d2d30;">타임라인</div>
                     <div class="sub-tab" id="subTabCommon" onclick="switchDayMode('common')"
                          style="flex: 1; padding: 6px; text-align: center; cursor: pointer; font-size: 11px; background: #1e1e1e; color: #888;">커먼</div>
                 </div>
-                <div id="dayList"></div>
+                <div id="timelineList"></div>
                 <div id="commonList" style="display: none;"></div>
-                <button class="add-char-btn" id="addDayBtn" onclick="addDay()">+ Day 추가</button>
-                <button class="add-char-btn" id="addCommonBtn" onclick="addCommon()" style="display: none;">+ 커먼 이벤트 추가</button>
+                <div id="timelineButtons">
+                    <button class="add-char-btn" onclick="addDayToTimeline()">+ Day 추가</button>
+                    <button class="add-char-btn" onclick="addCommonToTimeline()" style="background: rgba(220, 220, 170, 0.1);">+ 커먼 추가</button>
+                </div>
+                <button class="add-char-btn" id="addCommonBtn" onclick="addCommon()" style="display: none;">+ 새 커먼 이벤트</button>
             </div>
 
             <!-- 캐릭터 리스트 -->
@@ -1448,11 +1451,20 @@
             days: { day1: [], day2: [], day3: [], day4: [], day5: [], day6: [], day7: [] },
             commonList: [],
             commons: {},
+            timeline: [
+                { type: 'day', id: 'day1' },
+                { type: 'day', id: 'day2' },
+                { type: 'day', id: 'day3' },
+                { type: 'day', id: 'day4' },
+                { type: 'day', id: 'day5' },
+                { type: 'day', id: 'day6' },
+                { type: 'day', id: 'day7' }
+            ],
             bookmarks: []
         };
 
         let currentDay = 'day1';
-        let currentMode = 'day'; // 'day' 또는 'common'
+        let currentMode = 'timeline'; // 'timeline' 또는 'common'
         let selectedIndex = -1;
         let selectedIndices = []; // 다중 선택
         let clipboard = [];
@@ -1537,7 +1549,11 @@
 
         // ===== 초기화 =====
         function init() {
-            renderDayList();
+            // timeline 없으면 초기화
+            if (!project.timeline) {
+                project.timeline = project.dayList.map(d => ({ type: 'day', id: d.id }));
+            }
+            renderTimelineList();
             renderCharList();
             renderEventList();
             renderCommandList();
@@ -1668,24 +1684,73 @@
         }
 
         // ===== Day 리스트 =====
-        function renderDayList() {
-            const container = document.getElementById('dayList');
+        function renderTimelineList() {
+            const container = document.getElementById('timelineList');
+            if (!container) return;
             container.innerHTML = '';
             
-            project.dayList.forEach((day, index) => {
-                const count = (project.days[day.id] || []).length;
-                const item = document.createElement('div');
-                item.className = `day-item ${day.id === currentDay && currentMode === 'day' ? 'active' : ''}`;
-                item.innerHTML = `
-                    <span>${day.name}</span>
+            // timeline 없으면 초기화
+            if (!project.timeline) {
+                project.timeline = project.dayList.map(d => ({ type: 'day', id: d.id }));
+            }
+            
+            project.timeline.forEach((item, index) => {
+                let name, count, color, icon;
+                
+                if (item.type === 'day') {
+                    const day = project.dayList.find(d => d.id === item.id);
+                    name = day ? day.name : item.id;
+                    count = (project.days[item.id] || []).length;
+                    color = '#fff';
+                    icon = '▸';
+                } else {
+                    const common = project.commonList?.find(c => c.id === item.id);
+                    name = common ? common.name : item.id;
+                    count = (project.commons?.[item.id] || []).length;
+                    color = '#dcdcaa';
+                    icon = '◈';
+                    if (common?.fullscreen) {
+                        name += ' <span style="color: #4ec9b0; font-size: 9px;">▣</span>';
+                    }
+                }
+                
+                const div = document.createElement('div');
+                div.className = `day-item ${item.id === currentDay && currentMode === 'timeline' ? 'active' : ''}`;
+                div.draggable = true;
+                div.dataset.index = index;
+                div.innerHTML = `
+                    <span style="color: ${color}; cursor: grab;" class="drag-handle">☰</span>
+                    <span style="color: ${color}; margin-left: 5px;">${icon} ${name}</span>
                     <span class="count">${count}</span>
                     <div class="char-actions" style="margin-left: auto;">
-                        <button onclick="event.stopPropagation(); editDay('${day.id}')" title="편집">✎</button>
-                        ${project.dayList.length > 1 ? `<button onclick="event.stopPropagation(); deleteDay('${day.id}')" title="삭제">×</button>` : ''}
+                        <button onclick="event.stopPropagation(); editTimelineItem(${index})" title="편집">✎</button>
+                        <button onclick="event.stopPropagation(); removeFromTimeline(${index})" title="타임라인에서 제거">×</button>
                     </div>
                 `;
-                item.onclick = () => selectDay(day.id);
-                container.appendChild(item);
+                div.onclick = () => selectTimelineItem(item.type, item.id);
+                
+                // 드래그 앤 드롭
+                div.ondragstart = (e) => {
+                    e.dataTransfer.setData('text/plain', index);
+                    div.style.opacity = '0.5';
+                };
+                div.ondragend = () => { div.style.opacity = '1'; };
+                div.ondragover = (e) => { e.preventDefault(); div.style.borderTop = '2px solid #d4af37'; };
+                div.ondragleave = () => { div.style.borderTop = ''; };
+                div.ondrop = (e) => {
+                    e.preventDefault();
+                    div.style.borderTop = '';
+                    const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+                    const toIndex = index;
+                    if (fromIndex !== toIndex) {
+                        const [moved] = project.timeline.splice(fromIndex, 1);
+                        project.timeline.splice(toIndex, 0, moved);
+                        renderTimelineList();
+                        triggerAutoSave();
+                    }
+                };
+                
+                container.appendChild(div);
             });
         }
 
@@ -1698,18 +1763,23 @@
             if (!project.commons) project.commons = {};
             
             if (project.commonList.length === 0) {
-                container.innerHTML = '<div style="color: #666; padding: 12px; font-size: 11px;">커먼 이벤트가 없습니다.</div>';
+                container.innerHTML = '<div style="color: #666; padding: 12px; font-size: 11px;">커먼 이벤트가 없습니다.<br><br>커먼 이벤트는 재사용 가능한 이벤트 묶음입니다.<br>타임라인에 추가하거나 call-common으로 호출할 수 있습니다.</div>';
                 return;
             }
             
             project.commonList.forEach((common, index) => {
                 const count = (project.commons[common.id] || []).length;
+                const inTimeline = project.timeline?.some(t => t.type === 'common' && t.id === common.id);
+                const fullscreenBadge = common.fullscreen ? '<span style="color: #4ec9b0; font-size: 9px; margin-left: 4px;">▣ 전체화면</span>' : '';
+                const timelineBadge = inTimeline ? '<span style="color: #569cd6; font-size: 9px; margin-left: 4px;">📍 타임라인</span>' : '';
+                
                 const item = document.createElement('div');
                 item.className = `day-item ${common.id === currentDay && currentMode === 'common' ? 'active' : ''}`;
                 item.innerHTML = `
-                    <span style="color: #dcdcaa;">◈ ${common.name}</span>
+                    <span style="color: #dcdcaa;">◈ ${common.name}${fullscreenBadge}${timelineBadge}</span>
                     <span class="count">${count}</span>
                     <div class="char-actions" style="margin-left: auto;">
+                        ${!inTimeline ? `<button onclick="event.stopPropagation(); addExistingCommonToTimeline('${common.id}')" title="타임라인에 추가" style="color: #4ec9b0;">+</button>` : ''}
                         <button onclick="event.stopPropagation(); editCommon('${common.id}')" title="편집">✎</button>
                         <button onclick="event.stopPropagation(); deleteCommon('${common.id}')" title="삭제">×</button>
                     </div>
@@ -1723,35 +1793,36 @@
             currentMode = mode;
             
             // 탭 스타일 전환
-            const dayTab = document.getElementById('subTabDay');
+            const timelineTab = document.getElementById('subTabTimeline');
             const commonTab = document.getElementById('subTabCommon');
-            const dayList = document.getElementById('dayList');
+            const timelineList = document.getElementById('timelineList');
             const commonList = document.getElementById('commonList');
-            const addDayBtn = document.getElementById('addDayBtn');
+            const timelineButtons = document.getElementById('timelineButtons');
             const addCommonBtn = document.getElementById('addCommonBtn');
             
-            if (mode === 'day') {
-                dayTab.style.background = '#2d2d30';
-                dayTab.style.color = '#fff';
+            if (mode === 'timeline') {
+                timelineTab.style.background = '#2d2d30';
+                timelineTab.style.color = '#fff';
                 commonTab.style.background = '#1e1e1e';
                 commonTab.style.color = '#888';
-                dayList.style.display = 'block';
+                timelineList.style.display = 'block';
                 commonList.style.display = 'none';
-                addDayBtn.style.display = 'block';
+                timelineButtons.style.display = 'block';
                 addCommonBtn.style.display = 'none';
                 
-                // 첫 번째 Day 선택
-                if (project.dayList.length > 0) {
-                    selectDay(project.dayList[0].id);
+                renderTimelineList();
+                // 첫 번째 아이템 선택
+                if (project.timeline && project.timeline.length > 0) {
+                    selectTimelineItem(project.timeline[0].type, project.timeline[0].id);
                 }
             } else {
-                dayTab.style.background = '#1e1e1e';
-                dayTab.style.color = '#888';
+                timelineTab.style.background = '#1e1e1e';
+                timelineTab.style.color = '#888';
                 commonTab.style.background = '#2d2d30';
                 commonTab.style.color = '#fff';
-                dayList.style.display = 'none';
+                timelineList.style.display = 'none';
                 commonList.style.display = 'block';
-                addDayBtn.style.display = 'none';
+                timelineButtons.style.display = 'none';
                 addCommonBtn.style.display = 'block';
                 
                 renderCommonList();
@@ -1767,16 +1838,20 @@
             }
         }
 
-        function selectDay(dayId) {
-            currentMode = 'day';
-            currentDay = dayId;
+        function selectTimelineItem(type, id) {
+            currentMode = 'timeline';
+            currentDay = id;
             selectedIndex = -1;
             selectedIndices = [];
-            renderDayList();
+            renderTimelineList();
             renderCommonList();
             renderEventList();
             updateStatus();
             updatePreview();
+        }
+
+        function selectDay(dayId) {
+            selectTimelineItem('day', dayId);
         }
 
         function selectCommon(commonId) {
@@ -1784,7 +1859,7 @@
             currentDay = commonId;
             selectedIndex = -1;
             selectedIndices = [];
-            renderDayList();
+            renderTimelineList();
             renderCommonList();
             renderEventList();
             updateStatus();
@@ -1798,8 +1873,185 @@
                 if (!project.commons[currentDay]) project.commons[currentDay] = [];
                 return project.commons[currentDay];
             } else {
+                // timeline 모드: currentDay가 day인지 common인지 확인
+                const isCommon = project.commonList?.some(c => c.id === currentDay);
+                if (isCommon) {
+                    if (!project.commons) project.commons = {};
+                    if (!project.commons[currentDay]) project.commons[currentDay] = [];
+                    return project.commons[currentDay];
+                }
                 if (!project.days[currentDay]) project.days[currentDay] = [];
                 return project.days[currentDay];
+            }
+        }
+
+        // ===== 타임라인 관리 =====
+        function addDayToTimeline() {
+            const newId = 'day' + Date.now();
+            const newNum = project.dayList.length + 1;
+            
+            showModal(`
+                <div class="modal-header">Day 추가</div>
+                <div class="modal-body">
+                    <div class="form-row">
+                        <label class="form-label">이름</label>
+                        <input type="text" class="form-input" id="newDayName" value="${newNum}일차">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="modal-btn cancel" onclick="closeModal()">취소</button>
+                    <button class="modal-btn primary" onclick="saveNewDayToTimeline('${newId}')">추가</button>
+                </div>
+            `);
+        }
+        
+        function saveNewDayToTimeline(id) {
+            const name = document.getElementById('newDayName').value.trim() || 'Day';
+            
+            project.dayList.push({ id, name });
+            project.days[id] = [];
+            if (!project.timeline) project.timeline = [];
+            project.timeline.push({ type: 'day', id });
+            
+            closeModal();
+            renderTimelineList();
+            selectTimelineItem('day', id);
+            showToast('Day가 추가되었습니다.', 'success');
+            triggerAutoSave();
+        }
+        
+        function addCommonToTimeline() {
+            // 기존 커먼 중 타임라인에 없는 것이 있으면 선택 UI, 없으면 새로 생성
+            const availableCommons = (project.commonList || []).filter(
+                c => !project.timeline?.some(t => t.type === 'common' && t.id === c.id)
+            );
+            
+            if (availableCommons.length > 0) {
+                let options = availableCommons.map(c => 
+                    `<option value="${c.id}">${c.name}</option>`
+                ).join('');
+                
+                showModal(`
+                    <div class="modal-header">타임라인에 커먼 추가</div>
+                    <div class="modal-body">
+                        <div class="form-row">
+                            <label class="form-label">기존 커먼 선택</label>
+                            <select class="form-input" id="selectCommonForTimeline">
+                                ${options}
+                            </select>
+                        </div>
+                        <div style="text-align: center; color: #666; margin: 15px 0;">또는</div>
+                        <button class="modal-btn" onclick="closeModal(); addCommon();" style="width: 100%;">새 커먼 이벤트 생성</button>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="modal-btn cancel" onclick="closeModal()">취소</button>
+                        <button class="modal-btn primary" onclick="addSelectedCommonToTimeline()">추가</button>
+                    </div>
+                `);
+            } else {
+                // 사용 가능한 커먼이 없으면 새로 생성
+                addCommonForTimeline();
+            }
+        }
+        
+        function addSelectedCommonToTimeline() {
+            const select = document.getElementById('selectCommonForTimeline');
+            const commonId = select.value;
+            
+            if (!project.timeline) project.timeline = [];
+            project.timeline.push({ type: 'common', id: commonId });
+            
+            closeModal();
+            renderTimelineList();
+            renderCommonList();
+            selectTimelineItem('common', commonId);
+            showToast('커먼 이벤트가 타임라인에 추가되었습니다.', 'success');
+            triggerAutoSave();
+        }
+        
+        function addExistingCommonToTimeline(commonId) {
+            if (!project.timeline) project.timeline = [];
+            project.timeline.push({ type: 'common', id: commonId });
+            renderTimelineList();
+            renderCommonList();
+            showToast('타임라인에 추가되었습니다.', 'success');
+            triggerAutoSave();
+        }
+        
+        function addCommonForTimeline() {
+            const newId = 'common' + Date.now();
+            const newNum = (project.commonList || []).length + 1;
+            
+            showModal(`
+                <div class="modal-header">새 커먼 이벤트 (타임라인용)</div>
+                <div class="modal-body">
+                    <div class="form-row">
+                        <label class="form-label">이름</label>
+                        <input type="text" class="form-input" id="newCommonName" placeholder="예: 오프닝" value="커먼 이벤트 ${newNum}">
+                    </div>
+                    <div class="form-row" style="margin-top: 12px;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #ccc; font-size: 12px;">
+                            <input type="checkbox" id="newCommonFullscreen" style="width: 16px; height: 16px;">
+                            전체화면 모드 (오프닝/엔딩용)
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="modal-btn cancel" onclick="closeModal()">취소</button>
+                    <button class="modal-btn primary" onclick="saveNewCommonToTimeline('${newId}')">추가</button>
+                </div>
+            `);
+        }
+        
+        function saveNewCommonToTimeline(id) {
+            const name = document.getElementById('newCommonName').value.trim() || '커먼 이벤트';
+            const fullscreen = document.getElementById('newCommonFullscreen').checked;
+            
+            if (!project.commonList) project.commonList = [];
+            if (!project.commons) project.commons = {};
+            if (!project.timeline) project.timeline = [];
+            
+            project.commonList.push({ id, name, fullscreen });
+            project.commons[id] = [];
+            project.timeline.push({ type: 'common', id });
+            
+            closeModal();
+            renderTimelineList();
+            renderCommonList();
+            selectTimelineItem('common', id);
+            showToast('커먼 이벤트가 생성되고 타임라인에 추가되었습니다.', 'success');
+            triggerAutoSave();
+        }
+        
+        function removeFromTimeline(index) {
+            const item = project.timeline[index];
+            const name = item.type === 'day' 
+                ? project.dayList.find(d => d.id === item.id)?.name 
+                : project.commonList.find(c => c.id === item.id)?.name;
+            
+            const note = item.type === 'day' ? 'Day 데이터는 유지됩니다.' : '커먼 이벤트는 라이브러리에 남아있으며 call-common으로 호출할 수 있습니다.';
+            
+            showConfirmModal(
+                `"${name}"을(를) 타임라인에서 제거하시겠습니까?\n\n${note}`,
+                () => {
+                    project.timeline.splice(index, 1);
+                    renderTimelineList();
+                    renderCommonList();
+                    if (project.timeline.length > 0) {
+                        selectTimelineItem(project.timeline[0].type, project.timeline[0].id);
+                    }
+                    showToast('타임라인에서 제거되었습니다.', 'success');
+                    triggerAutoSave();
+                }
+            );
+        }
+        
+        function editTimelineItem(index) {
+            const item = project.timeline[index];
+            if (item.type === 'day') {
+                editDay(item.id);
+            } else {
+                editCommon(item.id);
             }
         }
 
@@ -1815,6 +2067,15 @@
                         <label class="form-label">이름</label>
                         <input type="text" class="form-input" id="newCommonName" placeholder="예: 공통 대화" value="커먼 이벤트 ${newNum}">
                     </div>
+                    <div class="form-row" style="margin-top: 12px;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #ccc; font-size: 12px;">
+                            <input type="checkbox" id="newCommonFullscreen" style="width: 16px; height: 16px;">
+                            전체화면 모드 (오프닝/엔딩용)
+                        </label>
+                        <div style="color: #888; font-size: 10px; margin-top: 4px; margin-left: 24px;">
+                            게임 프레임 없이 검은 배경에 텍스트만 표시됩니다.
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button class="modal-btn cancel" onclick="closeModal()">취소</button>
@@ -1825,11 +2086,12 @@
 
         function saveNewCommon(id) {
             const name = document.getElementById('newCommonName').value.trim() || '커먼 이벤트';
+            const fullscreen = document.getElementById('newCommonFullscreen').checked;
             
             if (!project.commonList) project.commonList = [];
             if (!project.commons) project.commons = {};
             
-            project.commonList.push({ id, name });
+            project.commonList.push({ id, name, fullscreen });
             project.commons[id] = [];
             
             closeModal();
@@ -1850,6 +2112,15 @@
                         <label class="form-label">이름</label>
                         <input type="text" class="form-input" id="editCommonName" value="${common.name}">
                     </div>
+                    <div class="form-row" style="margin-top: 12px;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #ccc; font-size: 12px;">
+                            <input type="checkbox" id="editCommonFullscreen" ${common.fullscreen ? 'checked' : ''} style="width: 16px; height: 16px;">
+                            전체화면 모드 (오프닝/엔딩용)
+                        </label>
+                        <div style="color: #888; font-size: 10px; margin-top: 4px; margin-left: 24px;">
+                            게임 프레임 없이 검은 배경에 텍스트만 표시됩니다.
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button class="modal-btn cancel" onclick="closeModal()">취소</button>
@@ -1863,6 +2134,7 @@
             if (!common) return;
             
             common.name = document.getElementById('editCommonName').value.trim() || '커먼 이벤트';
+            common.fullscreen = document.getElementById('editCommonFullscreen').checked;
             closeModal();
             renderCommonList();
             showToast('커먼 이벤트가 수정되었습니다.', 'success');
@@ -1922,7 +2194,7 @@
             project.days[newId] = [];
             
             closeModal();
-            renderDayList();
+            renderTimelineList();
             showToast('Day가 추가되었습니다.', 'success');
             triggerAutoSave();
         }
@@ -1958,7 +2230,7 @@
             if (day) day.name = name;
             
             closeModal();
-            renderDayList();
+            renderTimelineList();
             updateStatus();
             showToast('Day가 수정되었습니다.', 'success');
             triggerAutoSave();
@@ -1988,7 +2260,7 @@
                     currentDay = project.dayList[0].id;
                 }
                 
-                renderDayList();
+                renderTimelineList();
                 renderEventList();
                 updateStatus();
                 showToast('Day가 삭제되었습니다.', 'success');
@@ -2496,7 +2768,7 @@
             }
             
             selectedIndex = insertIndex;
-            renderDayList();
+            renderTimelineList();
             renderCommonList();
             renderEventList();
             
@@ -3729,7 +4001,7 @@
                 
                 selectedIndex = Math.min(toDelete[0], getCurrentEvents().length - 1);
                 selectedIndices = selectedIndex >= 0 ? [selectedIndex] : [];
-                renderDayList();
+                renderTimelineList();
                 renderEventList();
                 triggerAutoSave();
             };
@@ -3784,7 +4056,7 @@
             selectedIndices = items.map((_, i) => insertIndex + i);
             selectedIndex = insertIndex;
             
-            renderDayList();
+            renderTimelineList();
             renderEventList();
             triggerAutoSave();
         }
@@ -4554,7 +4826,7 @@
         }
 
         function renderAll() {
-            renderDayList();
+            renderTimelineList();
             renderCommonList();
             renderCharList();
             renderEventList();
@@ -4643,7 +4915,13 @@
                             project.days = newDays;
                         }
                         
-                        currentDay = project.dayList.length > 0 ? project.dayList[0].id : 'day1';
+                        // timeline이 없으면 생성
+                        if (!project.timeline) {
+                            project.timeline = project.dayList.map(d => ({ type: 'day', id: d.id }));
+                        }
+                        
+                        currentDay = project.timeline.length > 0 ? project.timeline[0].id : (project.dayList.length > 0 ? project.dayList[0].id : 'day1');
+                        currentMode = 'timeline';
                         selectedIndex = -1;
                         undoHistory = [];
                         historyIndex = -1;
@@ -4711,7 +4989,13 @@
                                 project.days = newDays;
                             }
                             
-                            currentDay = project.dayList.length > 0 ? project.dayList[0].id : 'day1';
+                            // timeline이 없으면 생성
+                            if (!project.timeline) {
+                                project.timeline = project.dayList.map(d => ({ type: 'day', id: d.id }));
+                            }
+                            
+                            currentDay = project.timeline.length > 0 ? project.timeline[0].id : (project.dayList.length > 0 ? project.dayList[0].id : 'day1');
+                            currentMode = 'timeline';
                             renderAll();
                             showToast('이전 작업 복원됨', 'success');
                         });
