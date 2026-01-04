@@ -581,9 +581,9 @@
             top: 0;
             left: 50%;
             transform: translateX(-50%);
-            border: 1px solid rgba(212, 175, 55, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 50%;
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
         }
         
         .title-orbit-1 { 
@@ -597,7 +597,7 @@
             height: 800px;
             margin-top: -480px;
             animation: title-orbit-rotate 35s linear infinite reverse;
-            border-color: rgba(212, 175, 55, 0.4);
+            border-color: rgba(255, 255, 255, 0.25);
         }
         .title-orbit-3 { 
             width: 1000px; 
@@ -614,20 +614,13 @@
         /* 타이틀 궤도 위 별 */
         .title-orbit-star {
             position: absolute;
-            width: 10px;
-            height: 10px;
-            background: radial-gradient(circle at 35% 35%, 
-                rgba(255, 255, 230, 1) 0%,
-                rgba(255, 240, 150, 1) 20%,
-                rgba(230, 200, 100, 1) 40%,
-                rgba(212, 175, 55, 1) 60%,
-                rgba(180, 140, 40, 0.8) 80%,
-                transparent 100%);
+            width: 6px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.9);
             border-radius: 50%;
             box-shadow: 
-                0 0 12px rgba(255, 240, 180, 0.9),
-                0 0 25px rgba(212, 175, 55, 0.7),
-                0 0 40px rgba(212, 175, 55, 0.4);
+                0 0 8px rgba(255, 255, 255, 0.8),
+                0 0 15px rgba(255, 255, 255, 0.5);
         }
         
         /* 별 위치 - 궤도 중심에서 반지름만큼 떨어진 위치 */
@@ -672,30 +665,30 @@
             width: 6px; height: 6px;
         }
         
-        /* 깜빡임 애니메이션들 - 더 밝게 */
+        /* 깜빡임 애니메이션들 */
         @keyframes twinkle-orbit-1 {
-            0%, 100% { opacity: 0.7; box-shadow: 0 0 12px rgba(255, 240, 180, 0.7), 0 0 20px rgba(212, 175, 55, 0.5); }
-            50% { opacity: 1; box-shadow: 0 0 18px rgba(255, 240, 180, 1), 0 0 35px rgba(212, 175, 55, 0.8), 0 0 50px rgba(212, 175, 55, 0.4); }
+            0%, 100% { opacity: 0.5; box-shadow: 0 0 6px rgba(255, 255, 255, 0.5); }
+            50% { opacity: 1; box-shadow: 0 0 12px rgba(255, 255, 255, 0.9); }
         }
         @keyframes twinkle-orbit-2 {
-            0%, 100% { opacity: 0.6; box-shadow: 0 0 10px rgba(255, 240, 180, 0.6), 0 0 18px rgba(212, 175, 55, 0.4); }
-            50% { opacity: 1; box-shadow: 0 0 15px rgba(255, 240, 180, 1), 0 0 30px rgba(212, 175, 55, 0.7); }
+            0%, 100% { opacity: 0.4; box-shadow: 0 0 5px rgba(255, 255, 255, 0.4); }
+            50% { opacity: 1; box-shadow: 0 0 10px rgba(255, 255, 255, 0.8); }
         }
         @keyframes twinkle-orbit-3 {
-            0%, 100% { opacity: 0.75; box-shadow: 0 0 12px rgba(255, 240, 180, 0.75), 0 0 22px rgba(212, 175, 55, 0.5); }
-            50% { opacity: 1; box-shadow: 0 0 20px rgba(255, 240, 180, 1), 0 0 40px rgba(212, 175, 55, 0.8); }
+            0%, 100% { opacity: 0.6; box-shadow: 0 0 7px rgba(255, 255, 255, 0.6); }
+            50% { opacity: 1; box-shadow: 0 0 14px rgba(255, 255, 255, 0.9); }
         }
         @keyframes twinkle-orbit-4 {
-            0%, 100% { opacity: 0.5; box-shadow: 0 0 8px rgba(255, 240, 180, 0.5), 0 0 15px rgba(212, 175, 55, 0.3); }
-            50% { opacity: 1; box-shadow: 0 0 14px rgba(255, 240, 180, 0.95), 0 0 28px rgba(212, 175, 55, 0.6); }
+            0%, 100% { opacity: 0.35; box-shadow: 0 0 4px rgba(255, 255, 255, 0.35); }
+            50% { opacity: 0.9; box-shadow: 0 0 9px rgba(255, 255, 255, 0.8); }
         }
         @keyframes twinkle-orbit-5 {
-            0%, 100% { opacity: 0.6; box-shadow: 0 0 10px rgba(255, 240, 180, 0.6), 0 0 20px rgba(212, 175, 55, 0.4); }
-            50% { opacity: 1; box-shadow: 0 0 18px rgba(255, 240, 180, 1), 0 0 35px rgba(212, 175, 55, 0.7), 0 0 50px rgba(212, 175, 55, 0.3); }
+            0%, 100% { opacity: 0.5; box-shadow: 0 0 6px rgba(255, 255, 255, 0.5); }
+            50% { opacity: 1; box-shadow: 0 0 12px rgba(255, 255, 255, 0.9); }
         }
         @keyframes twinkle-orbit-6 {
-            0%, 100% { opacity: 0.65; box-shadow: 0 0 10px rgba(255, 240, 180, 0.65), 0 0 18px rgba(212, 175, 55, 0.4); }
-            50% { opacity: 1; box-shadow: 0 0 16px rgba(255, 240, 180, 1), 0 0 32px rgba(212, 175, 55, 0.7); }
+            0%, 100% { opacity: 0.45; box-shadow: 0 0 5px rgba(255, 255, 255, 0.45); }
+            50% { opacity: 1; box-shadow: 0 0 11px rgba(255, 255, 255, 0.85); }
         }
         
         /* 비네팅 */
