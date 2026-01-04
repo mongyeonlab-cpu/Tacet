@@ -1,0 +1,2387 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tacet - Responsive UI</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #030305;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Noto Serif KR', serif;
+            overflow: hidden;
+        }
+        
+        /* ==================== */
+        /* 공통 스타일 */
+        /* ==================== */
+        
+        .game-wrapper {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(ellipse at center, #0a0a15 0%, #030305 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* 배경 별 (PC에서 양옆에 보임) */
+        .bg-stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .bg-star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #c9d1d9;
+            border-radius: 50%;
+            opacity: 0.2;
+            animation: twinkle 4s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.6; }
+        }
+        
+        /* 천체 궤도 */
+        .orbital-system {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .orbit {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            border: 1px solid rgba(201, 209, 217, 0.06);
+        }
+        
+        .orbit-1 {
+            width: 600px;
+            height: 600px;
+        }
+        
+        .orbit-2 {
+            width: 800px;
+            height: 800px;
+        }
+        
+        .orbit-3 {
+            width: 1000px;
+            height: 1000px;
+        }
+        
+        .orbit-4 {
+            width: 1200px;
+            height: 1200px;
+        }
+        
+        /* 궤도 위 회전하는 별 */
+        .orbit-star {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.9), 0 0 20px rgba(201, 209, 217, 0.6);
+        }
+        
+        /* 별 크기 변형 */
+        .orbit-star.size-lg {
+            width: 6px;
+            height: 6px;
+            margin: -3px 0 0 -3px;
+        }
+        
+        .orbit-star.size-md {
+            width: 5px;
+            height: 5px;
+            margin: -2.5px 0 0 -2.5px;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.8), 0 0 15px rgba(201, 209, 217, 0.5);
+        }
+        
+        .orbit-star.size-sm {
+            width: 4px;
+            height: 4px;
+            margin: -2px 0 0 -2px;
+            box-shadow: 0 0 6px rgba(255, 255, 255, 0.7), 0 0 12px rgba(201, 209, 217, 0.4);
+        }
+        
+        .orbit-star.size-xs {
+            width: 3px;
+            height: 3px;
+            margin: -1.5px 0 0 -1.5px;
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.6), 0 0 10px rgba(201, 209, 217, 0.3);
+        }
+        
+        /* 궤도 1 - 별 1개 */
+        .orbit-1 .orbit-star:nth-child(1) {
+            animation: orbit1-a 25s linear infinite, twinkle-1 2.5s ease-in-out infinite;
+        }
+        
+        /* 궤도 2 - 별 2개 */
+        .orbit-2 .orbit-star:nth-child(1) {
+            animation: orbit2-a 35s linear infinite, twinkle-2 1.8s ease-in-out infinite;
+        }
+        .orbit-2 .orbit-star:nth-child(2) {
+            animation: orbit2-b 35s linear infinite, twinkle-3 3.2s ease-in-out infinite;
+        }
+        
+        /* 궤도 3 - 별 2개 */
+        .orbit-3 .orbit-star:nth-child(1) {
+            animation: orbit3-a 45s linear infinite, twinkle-4 2.1s ease-in-out infinite;
+        }
+        .orbit-3 .orbit-star:nth-child(2) {
+            animation: orbit3-b 45s linear infinite, twinkle-5 2.8s ease-in-out infinite;
+        }
+        
+        /* 궤도 4 - 별 3개 */
+        .orbit-4 .orbit-star:nth-child(1) {
+            animation: orbit4-a 55s linear infinite, twinkle-6 3.5s ease-in-out infinite;
+        }
+        .orbit-4 .orbit-star:nth-child(2) {
+            animation: orbit4-b 55s linear infinite, twinkle-7 1.5s ease-in-out infinite;
+        }
+        .orbit-4 .orbit-star:nth-child(3) {
+            animation: orbit4-c 55s linear infinite, twinkle-8 2.3s ease-in-out infinite;
+        }
+        
+        /* 깜빡임 애니메이션 - 각각 다른 타이밍 */
+        @keyframes twinkle-1 {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+        @keyframes twinkle-2 {
+            0%, 100% { opacity: 0.5; }
+            60% { opacity: 1; }
+        }
+        @keyframes twinkle-3 {
+            0%, 100% { opacity: 0.3; }
+            40% { opacity: 1; }
+        }
+        @keyframes twinkle-4 {
+            0%, 100% { opacity: 0.5; }
+            55% { opacity: 1; }
+        }
+        @keyframes twinkle-5 {
+            0%, 100% { opacity: 0.4; }
+            45% { opacity: 1; }
+        }
+        @keyframes twinkle-6 {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        @keyframes twinkle-7 {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+        @keyframes twinkle-8 {
+            0%, 100% { opacity: 0.4; }
+            65% { opacity: 1; }
+        }
+        
+        /* 궤도 1 애니메이션 */
+        @keyframes orbit1-a {
+            from { transform: rotate(0deg) translateX(300px); }
+            to { transform: rotate(360deg) translateX(300px); }
+        }
+        
+        /* 궤도 2 애니메이션 - 180도 간격 */
+        @keyframes orbit2-a {
+            from { transform: rotate(0deg) translateX(400px); }
+            to { transform: rotate(360deg) translateX(400px); }
+        }
+        @keyframes orbit2-b {
+            from { transform: rotate(180deg) translateX(400px); }
+            to { transform: rotate(540deg) translateX(400px); }
+        }
+        
+        /* 궤도 3 애니메이션 - 180도 간격 */
+        @keyframes orbit3-a {
+            from { transform: rotate(60deg) translateX(500px); }
+            to { transform: rotate(420deg) translateX(500px); }
+        }
+        @keyframes orbit3-b {
+            from { transform: rotate(240deg) translateX(500px); }
+            to { transform: rotate(600deg) translateX(500px); }
+        }
+        
+        /* 궤도 4 애니메이션 - 120도 간격 */
+        @keyframes orbit4-a {
+            from { transform: rotate(0deg) translateX(600px); }
+            to { transform: rotate(360deg) translateX(600px); }
+        }
+        @keyframes orbit4-b {
+            from { transform: rotate(120deg) translateX(600px); }
+            to { transform: rotate(480deg) translateX(600px); }
+        }
+        @keyframes orbit4-c {
+            from { transform: rotate(240deg) translateX(600px); }
+            to { transform: rotate(600deg) translateX(600px); }
+        }
+        
+        @keyframes twinkle-star {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        
+        /* ==================== */
+        /* 하루 전환 효과 */
+        /* ==================== */
+        
+        /* 배경 전체 오버레이 (game-wrapper 레벨) */
+        .day-transition-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .day-transition-bg.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* 금빛 배경 - 태양과 함께 궤도 이동하며 전체를 물들임 */
+        .golden-light-orbit {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+        }
+        
+        .golden-light {
+            position: absolute;
+            width: 1400px;
+            height: 1400px;
+            top: 50%;
+            left: 50%;
+            margin: -700px 0 0 -700px;
+            background: radial-gradient(circle at center,
+                rgba(255, 230, 150, 0.45) 0%,
+                rgba(230, 200, 120, 0.35) 8%,
+                rgba(200, 170, 90, 0.25) 18%,
+                rgba(180, 150, 70, 0.12) 30%,
+                rgba(150, 130, 60, 0.05) 42%,
+                rgba(10, 10, 26, 0) 55%
+            );
+            transform: rotate(-70deg) translateY(-550px) rotate(70deg);
+            opacity: 0;
+        }
+        
+        .day-transition-bg.active .golden-light {
+            animation: golden-light-path 4s linear forwards;
+        }
+        
+        @keyframes golden-light-path {
+            0% { 
+                transform: rotate(-70deg) translateY(-550px) rotate(70deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            85% {
+                opacity: 1;
+            }
+            100% { 
+                transform: rotate(110deg) translateY(-550px) rotate(-110deg);
+                opacity: 0;
+            }
+        }
+        
+        /* 태양 궤도 컨테이너 */
+        .sun-orbit {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+        }
+        
+        /* 태양 - 하얀 빛, 경계 없이 부드럽게 */
+        .sun {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, 
+                rgba(255, 255, 255, 0.95) 0%,
+                rgba(255, 255, 255, 0.7) 3%,
+                rgba(255, 255, 255, 0.4) 8%,
+                rgba(255, 255, 255, 0.2) 15%,
+                rgba(255, 255, 255, 0.1) 25%,
+                rgba(255, 255, 255, 0.05) 35%,
+                rgba(255, 255, 255, 0.02) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            opacity: 0;
+            top: 50%;
+            left: 50%;
+            margin: -200px 0 0 -200px;
+        }
+        
+        .day-transition-bg.active .sun {
+            animation: sun-orbit-path 4s linear forwards;
+        }
+        
+        @keyframes sun-orbit-path {
+            0% { 
+                transform: rotate(-70deg) translateY(-550px) rotate(70deg);
+                opacity: 0;
+            }
+            8% {
+                opacity: 1;
+            }
+            92% {
+                opacity: 1;
+            }
+            100% { 
+                transform: rotate(110deg) translateY(-550px) rotate(-110deg);
+                opacity: 0;
+            }
+        }
+        
+        /* 날짜 텍스트 */
+        .day-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(255, 253, 231, 0.95);
+            font-size: 24px;
+            letter-spacing: 10px;
+            opacity: 0;
+            text-shadow: 0 0 30px rgba(255, 220, 150, 0.8);
+            z-index: 10;
+        }
+        
+        .day-transition-bg.active .day-text {
+            animation: day-text-show 4s ease-in-out forwards;
+        }
+        
+        @keyframes day-text-show {
+            0%, 35% { opacity: 0; }
+            45% { opacity: 1; }
+            55% { opacity: 1; }
+            65%, 100% { opacity: 0; }
+        }
+        
+        /* 궤도 별 빠르게 회전 */
+        .orbital-system.fast-forward .orbit-1 .orbit-star:nth-child(1) {
+            animation: orbit1-fast 2s linear infinite;
+        }
+        .orbital-system.fast-forward .orbit-2 .orbit-star:nth-child(1) {
+            animation: orbit2-a-fast 2.5s linear infinite;
+        }
+        .orbital-system.fast-forward .orbit-2 .orbit-star:nth-child(2) {
+            animation: orbit2-b-fast 2.5s linear infinite;
+        }
+        .orbital-system.fast-forward .orbit-3 .orbit-star:nth-child(1) {
+            animation: orbit3-a-fast 3s linear infinite;
+        }
+        .orbital-system.fast-forward .orbit-3 .orbit-star:nth-child(2) {
+            animation: orbit3-b-fast 3s linear infinite;
+        }
+        .orbital-system.fast-forward .orbit-4 .orbit-star:nth-child(1) {
+            animation: orbit4-a-fast 3.5s linear infinite;
+        }
+        .orbital-system.fast-forward .orbit-4 .orbit-star:nth-child(2) {
+            animation: orbit4-b-fast 3.5s linear infinite;
+        }
+        .orbital-system.fast-forward .orbit-4 .orbit-star:nth-child(3) {
+            animation: orbit4-c-fast 3.5s linear infinite;
+        }
+        
+        @keyframes orbit1-fast {
+            from { transform: rotate(0deg) translateX(300px); }
+            to { transform: rotate(360deg) translateX(300px); }
+        }
+        @keyframes orbit2-a-fast {
+            from { transform: rotate(0deg) translateX(400px); }
+            to { transform: rotate(360deg) translateX(400px); }
+        }
+        @keyframes orbit2-b-fast {
+            from { transform: rotate(180deg) translateX(400px); }
+            to { transform: rotate(540deg) translateX(400px); }
+        }
+        @keyframes orbit3-a-fast {
+            from { transform: rotate(60deg) translateX(500px); }
+            to { transform: rotate(420deg) translateX(500px); }
+        }
+        @keyframes orbit3-b-fast {
+            from { transform: rotate(240deg) translateX(500px); }
+            to { transform: rotate(600deg) translateX(500px); }
+        }
+        @keyframes orbit4-a-fast {
+            from { transform: rotate(0deg) translateX(600px); }
+            to { transform: rotate(360deg) translateX(600px); }
+        }
+        @keyframes orbit4-b-fast {
+            from { transform: rotate(120deg) translateX(600px); }
+            to { transform: rotate(480deg) translateX(600px); }
+        }
+        @keyframes orbit4-c-fast {
+            from { transform: rotate(240deg) translateX(600px); }
+            to { transform: rotate(600deg) translateX(600px); }
+        }
+        
+        /* 테스트 버튼 */
+        .test-transition-btn {
+            display: none;
+        }
+        
+        /* 로드 화면 */
+        .load-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #030305;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .load-screen.hidden { display: none; }
+        
+        .load-title {
+            color: #d4af37;
+            font-size: 32px;
+            letter-spacing: 15px;
+            margin-bottom: 40px;
+            text-shadow: 0 0 30px rgba(212, 175, 55, 0.5);
+        }
+        
+        .load-btn {
+            padding: 15px 40px;
+            background: transparent;
+            border: 1px solid rgba(212, 175, 55, 0.5);
+            color: #d4af37;
+            font-size: 14px;
+            letter-spacing: 3px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        .load-btn:hover {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: #d4af37;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+        }
+        
+        .load-btn input[type="file"] { display: none; }
+        
+        /* 타이핑 커서 */
+        .typing-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 14px;
+            background: #d4af37;
+            animation: blink 0.8s infinite;
+            vertical-align: middle;
+            margin-left: 2px;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        /* 메인 타이틀 (게임 화면 바깥 위) */
+        .main-title {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            text-align: center;
+        }
+        
+        .main-title-text {
+            color: #d4af37;
+            font-size: 18px;
+            letter-spacing: 12px;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+        }
+        
+        /* 게임 컨테이너 */
+        .game-container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* 나팔관 프레임 게임 화면 */
+        .game-screen {
+            background: linear-gradient(180deg, rgba(10, 10, 26, 0.85) 0%, rgba(13, 16, 37, 0.85) 50%, rgba(10, 10, 26, 0.85) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* 비네팅 */
+        .vignette {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, transparent 30%, rgba(3,3,5,0.9) 100%);
+            pointer-events: none;
+            z-index: 5;
+        }
+        
+        /* 금색 테두리 */
+        .gold-border {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 1px solid #d4af37;
+            pointer-events: none;
+            z-index: 6;
+            box-shadow: 
+                inset 0 0 30px rgba(212, 175, 55, 0.1),
+                0 0 15px rgba(212, 175, 55, 0.2);
+        }
+        
+        .gold-border-inner {
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            width: calc(100% - 12px);
+            height: calc(100% - 12px);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            pointer-events: none;
+            z-index: 6;
+        }
+        
+        /* 레코드 홈 배경 */
+        .record-grooves {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.03;
+        }
+        
+        /* 배경 이미지 */
+        .bg-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            z-index: 0;
+        }
+        
+        /* 스탠딩 이미지 영역 */
+        .standing-area {
+            position: absolute;
+            bottom: 210px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 45%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            z-index: 2;
+            pointer-events: none;
+        }
+        
+        .standing-area img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .groove {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid #c9d1d9;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        /* 별 */
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #c9d1d9;
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: twinkle 3s infinite;
+        }
+        
+        /* 타이틀 (게임 화면 내부 - 숨김) */
+        .title {
+            display: none;
+        }
+        
+        /* 설정 버튼 (화면 전체 우측 상단) */
+        .settings-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: rgba(10, 10, 26, 0.8);
+            border: 1px solid rgba(212, 175, 55, 0.5);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            transition: all 0.3s ease;
+        }
+        
+        .settings-btn:hover {
+            border-color: #d4af37;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+        }
+        
+        .settings-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: rgba(212, 175, 55, 0.8);
+            transition: all 0.3s ease;
+        }
+        
+        .settings-btn:hover svg {
+            fill: #d4af37;
+        }
+        
+        /* 노벨 게임 버튼들 (대사창 위) */
+        .novel-buttons {
+            position: absolute;
+            bottom: 200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 85%;
+            max-width: 320px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 4px;
+            z-index: 8;
+        }
+        
+        .novel-btn {
+            padding: 1px 6px;
+            background: rgba(10, 10, 26, 0.7);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .novel-btn:hover {
+            border-color: rgba(212, 175, 55, 0.7);
+            background: rgba(20, 20, 40, 0.8);
+        }
+        
+        .novel-btn span {
+            color: rgba(201, 209, 217, 0.6);
+            font-size: 8px;
+            letter-spacing: 1px;
+        }
+        
+        .novel-btn:hover span {
+            color: rgba(212, 175, 55, 0.9);
+        }
+        
+        /* 날짜 */
+        .date-display {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 4;
+        }
+        
+        .moon-phase {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 1px solid rgba(201, 209, 217, 0.4);
+            background: transparent;
+        }
+        
+        .moon-phase.past {
+            background: rgba(201, 209, 217, 0.3);
+        }
+        
+        .moon-phase.current {
+            background: radial-gradient(circle at 30% 30%, #fffde7, #c9d1d9);
+            box-shadow: 0 0 8px rgba(201, 209, 217, 0.5);
+        }
+        
+        .day-label {
+            position: absolute;
+            top: 38px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(201, 209, 217, 0.4);
+            font-size: 10px;
+            letter-spacing: 2px;
+            z-index: 4;
+        }
+        
+        /* 모바일용 내부 게이지 */
+        .mobile-gauge {
+            position: absolute;
+            top: 75px;
+            z-index: 7;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .mobile-gauge.left {
+            left: 20px;
+        }
+        
+        .mobile-gauge.right {
+            right: 20px;
+        }
+        
+        .mobile-gauge .gauge-moon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .mobile-gauge .gauge-moon-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: rgba(20, 20, 35, 0.8);
+            border: 1px solid rgba(150, 150, 170, 0.2);
+        }
+        
+        .mobile-gauge .gauge-moon-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            border-radius: 0 0 50% 50% / 0 0 100% 100%;
+            transition: height 0.5s ease;
+        }
+        
+        /* 이해 게이지 (왼쪽) - 은백색 */
+        .mobile-gauge.left .gauge-moon-fill {
+            height: 35%;
+            background: linear-gradient(180deg, 
+                rgba(201, 209, 217, 0.9) 0%, 
+                rgba(255, 253, 231, 0.7) 50%,
+                rgba(201, 209, 217, 0.5) 100%);
+            box-shadow: 
+                0 0 20px rgba(201, 209, 217, 0.5),
+                inset 0 5px 15px rgba(255, 255, 255, 0.3);
+        }
+        
+        .mobile-gauge.left .gauge-moon {
+            box-shadow: 0 0 25px rgba(201, 209, 217, 0.2);
+        }
+        
+        /* 오해 게이지 (오른쪽) - 붉은색 */
+        .mobile-gauge.right .gauge-moon-fill {
+            height: 60%;
+            background: linear-gradient(180deg, 
+                rgba(180, 80, 80, 0.9) 0%, 
+                rgba(139, 58, 58, 0.7) 50%,
+                rgba(100, 40, 40, 0.5) 100%);
+            box-shadow: 
+                0 0 20px rgba(139, 58, 58, 0.5),
+                inset 0 5px 15px rgba(255, 150, 150, 0.2);
+        }
+        
+        .mobile-gauge.right .gauge-moon {
+            box-shadow: 0 0 25px rgba(139, 58, 58, 0.3);
+        }
+        
+        .mobile-gauge .gauge-moon-highlight {
+            position: absolute;
+            top: 4px;
+            left: 6px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+        }
+        
+        .mobile-gauge .gauge-label {
+            color: rgba(201, 209, 217, 0.5);
+            font-size: 9px;
+            letter-spacing: 1px;
+            margin-top: 5px;
+        }
+        
+        .mobile-gauge.left .gauge-label {
+            color: rgba(201, 209, 217, 0.6);
+        }
+        
+        .mobile-gauge.right .gauge-label {
+            color: rgba(180, 120, 120, 0.6);
+        }
+        
+        /* 캐릭터 영역 */
+        .character-area {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .character-silhouette {
+            background: linear-gradient(180deg, 
+                rgba(20, 25, 45, 0.9) 0%, 
+                rgba(15, 20, 40, 0.95) 100%);
+            border-radius: 20px 20px 50px 50px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        /* 축음기 헤드 */
+        .gramophone-head {
+            position: relative;
+        }
+        
+        .record-disc {
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 100%);
+            border: 2px solid #d4af37;
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .record-center {
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #fffde7, #c9d1d9);
+            box-shadow: 0 0 15px rgba(201, 209, 217, 0.5);
+        }
+        
+        .horn {
+            background: linear-gradient(90deg, #8b7355, #d4af37, #8b7355);
+            clip-path: polygon(0% 50%, 30% 20%, 100% 0%, 100% 100%, 30% 80%);
+            position: absolute;
+        }
+        
+        /* 캐릭터 몸체 */
+        .character-body {
+            background: linear-gradient(180deg, 
+                rgba(13, 16, 37, 0.9) 0%, 
+                rgba(10, 10, 26, 0.9) 100%);
+            border-radius: 10px 10px 30px 30px;
+            position: relative;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+        
+        .gold-trim {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #d4af37, transparent);
+        }
+        
+        .medal {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #d4af37, #8b7355);
+            border: 1px solid #d4af37;
+        }
+        
+        .medal-inner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #fffde7, #c9d1d9);
+        }
+        
+        /* 대사창 */
+        .dialogue-box {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 4;
+            bottom: 100px;
+            width: 85%;
+            max-width: 320px;
+        }
+        
+        .dialogue-frame {
+            background: rgba(10, 10, 26, 0.95);
+            border: 1px solid rgba(212, 175, 55, 0.5);
+            border-radius: 5px;
+            padding: 15px 20px;
+            position: relative;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .dialogue-frame::before {
+            content: '♪';
+            position: absolute;
+            top: -8px;
+            left: 15px;
+            color: #d4af37;
+            font-size: 11px;
+            background: rgba(10, 10, 26, 1);
+            padding: 0 5px;
+        }
+        
+        .dialogue-text {
+            color: #e8e8e8;
+            font-size: 14px;
+            line-height: 1.8;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+        
+        .quote {
+            color: rgba(212, 175, 55, 0.7);
+        }
+        
+        /* 침묵 표시 */
+        .silence-indicator {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(201, 209, 217, 0.25);
+            font-size: 11px;
+            letter-spacing: 3px;
+            z-index: 4;
+        }
+        
+        /* 선택지 */
+        .choices-area {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            z-index: 4;
+        }
+        
+        .choice-btn {
+            border-radius: 50%;
+            background: rgba(10, 10, 26, 0.8);
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .choice-btn:hover {
+            border-color: #d4af37;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+            transform: scale(1.08);
+        }
+        
+        .choice-icon {
+            color: #c9d1d9;
+        }
+        
+        .choice-label {
+            color: rgba(201, 209, 217, 0.5);
+            letter-spacing: 1px;
+        }
+        
+        /* ==================== */
+        /* 모바일 (기본) */
+        /* ==================== */
+        
+        .game-screen {
+            width: 100vw;
+            max-width: 420px;
+            height: 100vh;
+            max-height: 800px;
+            border-radius: 40% 40% 5% 5% / 12% 12% 2% 2%;
+        }
+        
+        .gold-border,
+        .gold-border-inner {
+            border-radius: 40% 40% 5% 5% / 12% 12% 2% 2%;
+        }
+        
+        .groove:nth-child(1) { width: 90%; top: 5%; height: 90%; }
+        .groove:nth-child(2) { width: 80%; top: 10%; height: 80%; }
+        .groove:nth-child(3) { width: 70%; top: 15%; height: 70%; }
+        
+        .character-area {
+            top: 70px;
+            width: 180px;
+            height: 260px;
+        }
+        
+        .character-silhouette {
+            width: 160px;
+            height: 240px;
+        }
+        
+        .gramophone-head {
+            width: 70px;
+            height: 70px;
+            margin-top: 15px;
+        }
+        
+        .record-disc {
+            width: 55px;
+            height: 55px;
+            top: 8px;
+            left: 8px;
+        }
+        
+        .record-center {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .horn {
+            width: 45px;
+            height: 30px;
+            top: 20px;
+            left: 50px;
+            transform: rotate(-15deg);
+        }
+        
+        .character-body {
+            width: 110px;
+            height: 140px;
+            margin-top: 10px;
+        }
+        
+        .gold-trim {
+            top: 18px;
+            width: 70px;
+        }
+        
+        .medal {
+            top: 32px;
+            width: 22px;
+            height: 22px;
+        }
+        
+        .medal-inner {
+            width: 10px;
+            height: 10px;
+        }
+        
+        .dialogue-box {
+            bottom: 100px;
+            width: 85%;
+            max-width: 320px;
+        }
+        
+        .silence-indicator {
+            bottom: 80px;
+        }
+        
+        .choices-area {
+            bottom: 15px;
+            gap: 50px;
+        }
+        
+        .choice-btn {
+            width: 65px;
+            height: 65px;
+        }
+        
+        .choice-icon {
+            font-size: 22px;
+            margin-bottom: 2px;
+        }
+        
+        .choice-label {
+            font-size: 9px;
+        }
+        
+        /* PC 양쪽 장식 (기본 숨김) */
+        .side-decoration {
+            display: none;
+        }
+        
+        /* ==================== */
+        /* PC (min-width: 900px) */
+        /* ==================== */
+        
+        @media (min-width: 900px) and (min-height: 600px) {
+            .game-container {
+                flex-direction: row;
+                gap: 0;
+            }
+            
+            .main-title {
+                top: 50px;
+            }
+            
+            .main-title-text {
+                font-size: 22px;
+                letter-spacing: 15px;
+            }
+            
+            /* PC에서 모바일 게이지 숨김 */
+            .mobile-gauge {
+                display: none;
+            }
+            
+            .game-screen {
+                width: 500px;
+                height: 700px;
+                border-radius: 45% 45% 5% 5% / 15% 15% 2% 2%;
+            }
+            
+            .gold-border,
+            .gold-border-inner {
+                border-radius: 45% 45% 5% 5% / 15% 15% 2% 2%;
+            }
+            
+            .date-display {
+                top: 25px;
+                gap: 10px;
+            }
+            
+            .moon-phase {
+                width: 12px;
+                height: 12px;
+            }
+            
+            .day-label {
+                top: 47px;
+                font-size: 11px;
+            }
+            
+            .standing-area {
+                bottom: 230px;
+                width: 70%;
+                height: 50%;
+            }
+            
+            .settings-btn {
+                top: 25px;
+                right: 25px;
+                width: 45px;
+                height: 45px;
+            }
+            
+            .settings-btn svg {
+                width: 22px;
+                height: 22px;
+            }
+            
+            .novel-buttons {
+                bottom: 215px;
+                width: 400px;
+                max-width: none;
+                gap: 5px;
+            }
+            
+            .novel-btn {
+                padding: 2px 8px;
+            }
+            
+            .novel-btn span {
+                font-size: 9px;
+            }
+            
+            .character-silhouette {
+                width: 200px;
+                height: 290px;
+            }
+            
+            .gramophone-head {
+                width: 90px;
+                height: 90px;
+                margin-top: 20px;
+            }
+            
+            .record-disc {
+                width: 70px;
+                height: 70px;
+                top: 10px;
+                left: 10px;
+            }
+            
+            .record-center {
+                width: 22px;
+                height: 22px;
+            }
+            
+            .horn {
+                width: 55px;
+                height: 38px;
+                top: 26px;
+                left: 65px;
+            }
+            
+            .character-body {
+                width: 140px;
+                height: 170px;
+                margin-top: 12px;
+            }
+            
+            .gold-trim {
+                top: 22px;
+                width: 90px;
+            }
+            
+            .medal {
+                top: 40px;
+                width: 28px;
+                height: 28px;
+            }
+            
+            .medal-inner {
+                width: 13px;
+                height: 13px;
+            }
+            
+            .dialogue-box {
+                bottom: 110px;
+                width: 400px;
+                max-width: none;
+            }
+            
+            .dialogue-frame {
+                padding: 18px 25px;
+                height: 95px;
+            }
+            
+            .dialogue-text {
+                font-size: 15px;
+            }
+            
+            .silence-indicator {
+                bottom: 88px;
+                font-size: 12px;
+            }
+            
+            .choices-area {
+                bottom: 20px;
+                gap: 80px;
+            }
+            
+            .choice-btn {
+                width: 75px;
+                height: 75px;
+            }
+            
+            .choice-icon {
+                font-size: 26px;
+                margin-bottom: 3px;
+            }
+            
+            .choice-label {
+                font-size: 10px;
+            }
+            
+            /* 양쪽 장식 표시 */
+            .side-decoration {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                width: 180px;
+                height: 500px;
+                position: relative;
+            }
+            
+            .side-decoration.left {
+                margin-right: 30px;
+            }
+            
+            .side-decoration.right {
+                margin-left: 30px;
+            }
+            
+            /* 달 게이지 */
+            .moon-gauge {
+                width: 70px;
+                height: 70px;
+                border-radius: 50%;
+                position: relative;
+                overflow: hidden;
+                margin-bottom: 15px;
+            }
+            
+            .moon-gauge-bg {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+                background: rgba(20, 20, 35, 0.8);
+                border: 1px solid rgba(150, 150, 170, 0.2);
+            }
+            
+            .moon-gauge-fill {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                border-radius: 0 0 50% 50% / 0 0 100% 100%;
+                transition: height 0.5s ease;
+            }
+            
+            /* 이해 게이지 (왼쪽) - 은백색 */
+            .left .moon-gauge-fill {
+                height: 35%;
+                background: linear-gradient(180deg, 
+                    rgba(201, 209, 217, 0.9) 0%, 
+                    rgba(255, 253, 231, 0.7) 50%,
+                    rgba(201, 209, 217, 0.5) 100%);
+                box-shadow: 
+                    0 0 20px rgba(201, 209, 217, 0.5),
+                    inset 0 5px 15px rgba(255, 255, 255, 0.3);
+            }
+            
+            .left .moon-gauge {
+                box-shadow: 0 0 25px rgba(201, 209, 217, 0.2);
+            }
+            
+            /* 오해 게이지 (오른쪽) - 붉은색 */
+            .right .moon-gauge-fill {
+                height: 60%;
+                background: linear-gradient(180deg, 
+                    rgba(180, 80, 80, 0.9) 0%, 
+                    rgba(139, 58, 58, 0.7) 50%,
+                    rgba(100, 40, 40, 0.5) 100%);
+                box-shadow: 
+                    0 0 20px rgba(139, 58, 58, 0.5),
+                    inset 0 5px 15px rgba(255, 150, 150, 0.2);
+            }
+            
+            .right .moon-gauge {
+                box-shadow: 0 0 25px rgba(139, 58, 58, 0.3);
+            }
+            
+            /* 달 하이라이트 */
+            .moon-gauge-highlight {
+                position: absolute;
+                top: 8px;
+                left: 12px;
+                width: 15px;
+                height: 15px;
+                border-radius: 50%;
+                background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+            }
+            
+            /* 게이지 라벨 */
+            .gauge-label {
+                color: rgba(201, 209, 217, 0.5);
+                font-size: 10px;
+                letter-spacing: 2px;
+                margin-bottom: 30px;
+            }
+            
+            .left .gauge-label {
+                color: rgba(201, 209, 217, 0.6);
+            }
+            
+            .right .gauge-label {
+                color: rgba(180, 120, 120, 0.6);
+            }
+            
+            .side-line {
+                width: 1px;
+                height: 120px;
+                background: linear-gradient(180deg, transparent, rgba(212, 175, 55, 0.2), transparent);
+            }
+            
+            .side-text {
+                color: rgba(201, 209, 217, 0.15);
+                font-size: 11px;
+                letter-spacing: 4px;
+                writing-mode: vertical-rl;
+                margin-top: 30px;
+            }
+            
+            .side-decoration.left .side-text {
+                transform: rotate(180deg);
+            }
+        }
+        
+        /* ==================== */
+        /* 와이드 PC (min-width: 1200px) */
+        /* ==================== */
+        
+        @media (min-width: 1200px) {
+            .side-decoration {
+                width: 250px;
+            }
+            
+            .side-decoration.left {
+                margin-right: 50px;
+            }
+            
+            .side-decoration.right {
+                margin-left: 50px;
+            }
+            
+            .moon-gauge {
+                width: 90px;
+                height: 90px;
+            }
+            
+            .moon-gauge-highlight {
+                top: 10px;
+                left: 15px;
+                width: 20px;
+                height: 20px;
+            }
+            
+            .gauge-label {
+                font-size: 11px;
+                letter-spacing: 3px;
+            }
+            
+            .side-line {
+                height: 150px;
+            }
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="game-wrapper">
+        <!-- 설정 버튼 (화면 전체 우측 상단) -->
+        <div class="settings-btn">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+            </svg>
+        </div>
+        
+        <!-- 메인 타이틀 (게임 화면 바깥) -->
+        <div class="main-title">
+            <div class="main-title-text">T A C E T</div>
+        </div>
+        
+        <!-- 천체 궤도 시스템 -->
+        <div class="orbital-system">
+            <div class="orbit orbit-1">
+                <div class="orbit-star size-md"></div>
+            </div>
+            <div class="orbit orbit-2">
+                <div class="orbit-star size-lg"></div>
+                <div class="orbit-star size-xs"></div>
+            </div>
+            <div class="orbit orbit-3">
+                <div class="orbit-star size-sm"></div>
+                <div class="orbit-star size-md"></div>
+            </div>
+            <div class="orbit orbit-4">
+                <div class="orbit-star size-xs"></div>
+                <div class="orbit-star size-lg"></div>
+                <div class="orbit-star size-sm"></div>
+            </div>
+        </div>
+        
+        <!-- 하루 전환 배경 효과 -->
+        <div class="day-transition-bg">
+            <div class="golden-light-orbit">
+                <div class="golden-light"></div>
+            </div>
+            <div class="sun-orbit">
+                <div class="sun"></div>
+            </div>
+            <div class="day-text">4 일 차</div>
+        </div>
+        
+        <!-- 배경 별 -->
+        <div class="bg-stars">
+            <div class="bg-star" style="top: 10%; left: 5%;"></div>
+            <div class="bg-star" style="top: 20%; left: 12%;"></div>
+            <div class="bg-star" style="top: 40%; left: 8%;"></div>
+            <div class="bg-star" style="top: 60%; left: 15%;"></div>
+            <div class="bg-star" style="top: 75%; left: 6%;"></div>
+            <div class="bg-star" style="top: 15%; left: 88%;"></div>
+            <div class="bg-star" style="top: 30%; left: 92%;"></div>
+            <div class="bg-star" style="top: 50%; left: 85%;"></div>
+            <div class="bg-star" style="top: 70%; left: 90%;"></div>
+            <div class="bg-star" style="top: 85%; left: 95%;"></div>
+        </div>
+        
+        <div class="game-container">
+            <!-- 왼쪽 장식 (PC만) - 이해 게이지 -->
+            <div class="side-decoration left">
+                <div class="moon-gauge">
+                    <div class="moon-gauge-bg"></div>
+                    <div class="moon-gauge-fill"></div>
+                    <div class="moon-gauge-highlight"></div>
+                </div>
+                <div class="gauge-label">이해</div>
+                <div class="side-line"></div>
+                <div class="side-text">UNDERSTANDING</div>
+            </div>
+            
+            <!-- 메인 게임 화면 -->
+            <div class="game-screen">
+                <!-- 배경 이미지 -->
+                <div class="bg-image" id="bgImage"></div>
+                
+                <!-- 레코드 홈 -->
+                <div class="record-grooves">
+                    <div class="groove"></div>
+                    <div class="groove"></div>
+                    <div class="groove"></div>
+                </div>
+                
+                <!-- 별 -->
+                <div class="stars">
+                    <div class="star" style="top: 15%; left: 20%; animation-delay: 0s;"></div>
+                    <div class="star" style="top: 25%; left: 75%; animation-delay: 0.5s;"></div>
+                    <div class="star" style="top: 35%; left: 15%; animation-delay: 1s;"></div>
+                    <div class="star" style="top: 20%; left: 85%; animation-delay: 1.5s;"></div>
+                    <div class="star" style="top: 40%; left: 80%; animation-delay: 2s;"></div>
+                    <div class="star" style="top: 28%; left: 30%; animation-delay: 2.5s;"></div>
+                </div>
+                
+                <!-- 타이틀 -->
+                <div class="title">TACET</div>
+                
+                <!-- 모바일용 게이지 (왼쪽 - 이해) -->
+                <div class="mobile-gauge left">
+                    <div class="gauge-moon">
+                        <div class="gauge-moon-bg"></div>
+                        <div class="gauge-moon-fill"></div>
+                        <div class="gauge-moon-highlight"></div>
+                    </div>
+                    <div class="gauge-label">이해</div>
+                </div>
+                
+                <!-- 모바일용 게이지 (오른쪽 - 오해) -->
+                <div class="mobile-gauge right">
+                    <div class="gauge-moon">
+                        <div class="gauge-moon-bg"></div>
+                        <div class="gauge-moon-fill"></div>
+                        <div class="gauge-moon-highlight"></div>
+                    </div>
+                    <div class="gauge-label">오해</div>
+                </div>
+                
+                <!-- 날짜 -->
+                <div class="date-display">
+                    <div class="moon-phase past"></div>
+                    <div class="moon-phase past"></div>
+                    <div class="moon-phase current"></div>
+                    <div class="moon-phase"></div>
+                    <div class="moon-phase"></div>
+                    <div class="moon-phase"></div>
+                    <div class="moon-phase"></div>
+                </div>
+                <div class="day-label">3일차</div>
+                
+                <!-- 스탠딩 이미지 영역 -->
+                <div class="standing-area" id="standingArea">
+                    <!-- 스탠딩 이미지가 여기에 표시됨 -->
+                </div>
+                
+                <!-- 노벨 게임 버튼들 -->
+                <div class="novel-buttons">
+                    <div class="novel-btn" onclick="openSaveLoad('save')"><span>SAVE</span></div>
+                    <div class="novel-btn" onclick="openSaveLoad('load')"><span>LOAD</span></div>
+                    <div class="novel-btn" onclick="toggleAuto()"><span>AUTO</span></div>
+                    <div class="novel-btn" onclick="toggleSkip()"><span>SKIP</span></div>
+                    <div class="novel-btn" onclick="openLog()"><span>LOG</span></div>
+                </div>
+                
+                <!-- 대사창 -->
+                <div class="dialogue-box">
+                    <div class="dialogue-frame">
+                        <div class="dialogue-text">
+                            <span class="quote">「</span> 배고프지 않아? <span class="quote">」</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 침묵 -->
+                <div class="silence-indicator">· · · · · ·</div>
+                
+                <!-- 선택지 -->
+                <div class="choices-area">
+                    <div class="choice-btn nod">
+                        <div class="choice-icon">↓</div>
+                        <div class="choice-label">끄덕</div>
+                    </div>
+                    <div class="choice-btn shake">
+                        <div class="choice-icon">↔</div>
+                        <div class="choice-label">젓기</div>
+                    </div>
+                </div>
+                
+                <!-- 비네팅 & 테두리 -->
+                <div class="vignette"></div>
+                <div class="gold-border"></div>
+                <div class="gold-border-inner"></div>
+            </div>
+            
+            <!-- 오른쪽 장식 (PC만) - 오해 게이지 -->
+            <div class="side-decoration right">
+                <div class="moon-gauge">
+                    <div class="moon-gauge-bg"></div>
+                    <div class="moon-gauge-fill"></div>
+                    <div class="moon-gauge-highlight"></div>
+                </div>
+                <div class="gauge-label">오해</div>
+                <div class="side-line"></div>
+                <div class="side-text">MISREADING</div>
+            </div>
+        </div>
+        
+    </div>
+    
+    <!-- 로드 화면 -->
+    <div class="load-screen" id="loadScreen">
+        <div class="load-title">TACET</div>
+        <button class="load-btn" onclick="document.getElementById('scenarioFile').click()">
+            시나리오 불러오기
+            <input type="file" id="scenarioFile" accept=".json" onchange="loadScenarioFile(event)">
+        </button>
+        <button class="load-btn" onclick="loadDemoScenario()">데모 플레이</button>
+    </div>
+    
+    <script>
+        // ===== 게임 상태 =====
+        let scenario = null;
+        let gameState = {
+            currentDayId: null,
+            currentIndex: 0,
+            variables: {},
+            log: [],
+            callStack: [],
+            isAutoMode: false,
+            isSkipMode: false
+        };
+        
+        let isTyping = false;
+        let typingTimer = null;
+        let autoTimer = null;
+        let currentText = '';
+        let displayedText = '';
+        
+        // ===== 자동 시나리오 로드 =====
+        window.addEventListener('DOMContentLoaded', async function() {
+            try {
+                // 같은 폴더의 scenario.json 자동 로드 시도
+                const response = await fetch('./scenario.json');
+                if (response.ok) {
+                    scenario = await response.json();
+                    initGame();
+                    return;
+                }
+            } catch (e) {
+                console.log('자동 로드 실패, 수동 로드 화면 표시');
+            }
+            // 자동 로드 실패 시 로드 화면 표시 (기본 상태)
+        });
+        
+        // ===== 시나리오 로드 =====
+        function loadScenarioFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    scenario = JSON.parse(e.target.result);
+                    initGame();
+                } catch (err) {
+                    alert('시나리오 파일을 읽을 수 없습니다: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+        
+        function loadDemoScenario() {
+            scenario = {
+                config: { title: "달의 세계", version: "1.0" },
+                characters: [
+                    { id: 'inhui', name: '인외', color: '#569cd6' },
+                    { id: 'narration', name: '나레이션', color: '#888888' }
+                ],
+                dayList: [
+                    { id: 'day1', name: '1일차' },
+                    { id: 'day2', name: '2일차' },
+                    { id: 'day3', name: '3일차' },
+                    { id: 'day4', name: '4일차' },
+                    { id: 'day5', name: '5일차' },
+                    { id: 'day6', name: '6일차' },
+                    { id: 'day7', name: '7일차' }
+                ],
+                days: {
+                    'day1': [
+                        { type: 'dialogue', speaker: 'narration', text: '어둠 속에서 눈을 떴다.' },
+                        { type: 'dialogue', speaker: 'narration', text: '낯선 공간. 희미한 빛이 어딘가에서 새어 들어온다.' },
+                        { type: 'dialogue', speaker: 'inhui', text: '배고프지 않아?' },
+                        { type: 'choice' },
+                        { type: 'choice-branch', choiceType: 'nod', label: '끄덕', effects: { understanding: 1 } },
+                        { type: 'dialogue', speaker: 'inhui', text: '그렇구나. 뭔가 가져올게.' },
+                        { type: 'choice-branch', choiceType: 'shake', label: '젓기', effects: { misreading: 1 } },
+                        { type: 'dialogue', speaker: 'inhui', text: '...정말?' },
+                        { type: 'dialogue', speaker: 'narration', text: '그가 고개를 갸웃거린다.' },
+                        { type: 'choice-end' },
+                        { type: 'dialogue', speaker: 'narration', text: '시간이 흐른다.' },
+                        { type: 'day-transition', nextDay: 'day2' }
+                    ],
+                    'day2': [
+                        { type: 'dialogue', speaker: 'narration', text: '다음 날이 밝았다.' },
+                        { type: 'dialogue', speaker: 'inhui', text: '잘 잤어?' },
+                        { type: 'choice' },
+                        { type: 'choice-branch', choiceType: 'nod', label: '끄덕', effects: { understanding: 1 } },
+                        { type: 'dialogue', speaker: 'inhui', text: '다행이야.' },
+                        { type: 'choice-branch', choiceType: 'shake', label: '젓기', effects: { misreading: 1 } },
+                        { type: 'dialogue', speaker: 'inhui', text: '...불편했어?' },
+                        { type: 'choice-end' },
+                        { type: 'dialogue', speaker: 'narration', text: '그의 얼굴에서 감정을 읽기 어렵다.' },
+                        { type: 'day-transition', nextDay: 'day3' }
+                    ],
+                    'day3': [
+                        { type: 'dialogue', speaker: 'narration', text: '3일차가 시작되었다.' },
+                        { type: 'dialogue', speaker: 'inhui', text: '오늘은 뭘 하고 싶어?' },
+                        { type: 'dialogue', speaker: 'narration', text: '아직 이 세계가 낯설다.' },
+                        { type: 'ending', endingId: 'demo_end' }
+                    ],
+                    'day4': [], 'day5': [], 'day6': [], 'day7': []
+                }
+            };
+            initGame();
+        }
+        
+        function initGame() {
+            if (!scenario) return;
+            
+            gameState = {
+                currentDayId: scenario.dayList[0]?.id || 'day1',
+                currentIndex: 0,
+                variables: {},
+                log: [],
+                callStack: [],
+                isAutoMode: false,
+                isSkipMode: false
+            };
+            
+            updateDateDisplay();
+            updateGauges();
+            document.getElementById('loadScreen').classList.add('hidden');
+            document.querySelector('.dialogue-box').style.display = 'block';
+            document.querySelector('.choices-area').style.display = 'none';
+            processNextEvent();
+        }
+        
+        // ===== 이벤트 처리 =====
+        function getCurrentEvents() {
+            if (!scenario) return [];
+            if (scenario.commons && scenario.commons[gameState.currentDayId]) {
+                return scenario.commons[gameState.currentDayId];
+            }
+            return scenario.days[gameState.currentDayId] || [];
+        }
+        
+        function processNextEvent() {
+            const events = getCurrentEvents();
+            if (gameState.currentIndex >= events.length) return;
+            processEvent(events[gameState.currentIndex]);
+        }
+        
+        function processEvent(event) {
+            if (!event) return;
+            
+            switch (event.type) {
+                case 'dialogue': showDialogue(event); break;
+                case 'choice': showChoices(); break;
+                case 'choice-branch':
+                case 'choice-end':
+                case 'label':
+                case 'comment':
+                    gameState.currentIndex++;
+                    processNextEvent();
+                    break;
+                case 'condition': handleCondition(event); break;
+                case 'condition-else': skipToConditionEnd(); break;
+                case 'condition-end':
+                    gameState.currentIndex++;
+                    processNextEvent();
+                    break;
+                case 'variable': handleVariable(event); break;
+                case 'day-transition': handleDayTransition(event); break;
+                case 'jump': handleJump(event); break;
+                case 'jump-day': handleJumpDay(event); break;
+                case 'call-common': handleCallCommon(event); break;
+                case 'return': handleReturn(); break;
+                case 'ending': handleEnding(event); break;
+                case 'background': handleBackground(event); break;
+                case 'character': handleCharacter(event); break;
+                case 'character-hide': handleCharacterHide(event); break;
+                default:
+                    gameState.currentIndex++;
+                    processNextEvent();
+            }
+        }
+        
+        // ===== 배경 이미지 =====
+        function handleBackground(event) {
+            const bgImage = document.getElementById('bgImage');
+            if (event.file) {
+                bgImage.style.backgroundImage = `url('${event.file}')`;
+            } else {
+                bgImage.style.backgroundImage = '';
+            }
+            gameState.currentIndex++;
+            processNextEvent();
+        }
+        
+        // ===== 스탠딩 이미지 =====
+        function handleCharacter(event) {
+            const standingArea = document.getElementById('standingArea');
+            const charId = event.character || event.id;
+            
+            // 기존 같은 캐릭터 이미지 제거
+            const existing = standingArea.querySelector(`[data-char="${charId}"]`);
+            if (existing) existing.remove();
+            
+            if (event.file) {
+                const img = document.createElement('img');
+                img.src = event.file;
+                img.dataset.char = charId;
+                img.style.position = 'absolute';
+                img.style.bottom = '0';
+                
+                // 위치 설정
+                if (event.position === 'left') {
+                    img.style.left = '10%';
+                } else if (event.position === 'right') {
+                    img.style.right = '10%';
+                } else {
+                    img.style.left = '50%';
+                    img.style.transform = 'translateX(-50%)';
+                }
+                
+                standingArea.appendChild(img);
+            }
+            
+            gameState.currentIndex++;
+            processNextEvent();
+        }
+        
+        function handleCharacterHide(event) {
+            const standingArea = document.getElementById('standingArea');
+            const charId = event.character || event.id;
+            
+            if (charId) {
+                const img = standingArea.querySelector(`[data-char="${charId}"]`);
+                if (img) img.remove();
+            } else {
+                // 전체 숨기기
+                standingArea.innerHTML = '';
+            }
+            
+            gameState.currentIndex++;
+            processNextEvent();
+        }
+        
+        // ===== 대사 표시 =====
+        function showDialogue(event) {
+            document.querySelector('.dialogue-box').style.display = 'block';
+            document.querySelector('.choices-area').style.display = 'none';
+            document.querySelector('.silence-indicator').style.display = 'none';
+            
+            currentText = event.text || '';
+            displayedText = '';
+            
+            if (gameState.isSkipMode) {
+                document.querySelector('.dialogue-text').innerHTML = 
+                    `<span class="quote">「</span> ${currentText} <span class="quote">」</span>`;
+                isTyping = false;
+                addToLog(event);
+                setTimeout(() => { gameState.currentIndex++; processNextEvent(); }, 100);
+            } else {
+                isTyping = true;
+                typeText(event);
+            }
+        }
+        
+        function typeText(event) {
+            const element = document.querySelector('.dialogue-text');
+            
+            if (displayedText.length < currentText.length) {
+                displayedText += currentText[displayedText.length];
+                element.innerHTML = `<span class="quote">「</span> ${displayedText}<span class="typing-cursor"></span> <span class="quote">」</span>`;
+                typingTimer = setTimeout(() => typeText(event), gameState.isAutoMode ? 30 : 40);
+            } else {
+                element.innerHTML = `<span class="quote">「</span> ${currentText} <span class="quote">」</span>`;
+                isTyping = false;
+                addToLog(event);
+                
+                if (gameState.isAutoMode) {
+                    autoTimer = setTimeout(() => { gameState.currentIndex++; processNextEvent(); }, 2000);
+                }
+            }
+        }
+        
+        // ===== 선택지 =====
+        function showChoices() {
+            const events = getCurrentEvents();
+            const branches = [];
+            let i = gameState.currentIndex + 1;
+            let depth = 1;
+            
+            while (i < events.length && depth > 0) {
+                if (events[i].type === 'choice') depth++;
+                if (events[i].type === 'choice-end') depth--;
+                if (depth === 1 && events[i].type === 'choice-branch') {
+                    branches.push({ index: i, event: events[i] });
+                }
+                i++;
+            }
+            
+            const choicesArea = document.querySelector('.choices-area');
+            choicesArea.innerHTML = '';
+            
+            branches.forEach((b, idx) => {
+                const btn = document.createElement('div');
+                btn.className = 'choice-btn ' + (b.event.choiceType || '');
+                
+                let icon = '●', label = b.event.label || `선택 ${idx + 1}`;
+                if (b.event.choiceType === 'nod') { icon = '↓'; label = '끄덕'; }
+                else if (b.event.choiceType === 'shake') { icon = '↔'; label = '젓기'; }
+                
+                btn.innerHTML = `
+                    <div class="choice-icon">${icon}</div>
+                    <div class="choice-label">${label}</div>
+                `;
+                btn.onclick = () => selectChoice(b.index);
+                choicesArea.appendChild(btn);
+            });
+            
+            choicesArea.style.display = 'flex';
+            // 대사창 유지 - 숨기지 않음
+            document.querySelector('.silence-indicator').style.display = 'block';
+        }
+        
+        function selectChoice(branchIndex) {
+            const branch = getCurrentEvents()[branchIndex];
+            if (branch.effects) {
+                Object.entries(branch.effects).forEach(([k, v]) => {
+                    gameState.variables[k] = (gameState.variables[k] || 0) + v;
+                });
+                updateGauges();
+            }
+            
+            document.querySelector('.choices-area').style.display = 'none';
+            document.querySelector('.silence-indicator').style.display = 'none';
+            gameState.currentIndex = branchIndex + 1;
+            processNextEvent();
+        }
+        
+        // ===== 조건 분기 =====
+        function handleCondition(event) {
+            const val = gameState.variables[event.variable] || 0;
+            const target = event.value || 0;
+            let result = false;
+            
+            switch (event.operator || '>=') {
+                case '>=': result = val >= target; break;
+                case '<=': result = val <= target; break;
+                case '>': result = val > target; break;
+                case '<': result = val < target; break;
+                case '==': result = val === target; break;
+                case '!=': result = val !== target; break;
+            }
+            
+            if (result) { gameState.currentIndex++; processNextEvent(); }
+            else { skipToConditionElse(); }
+        }
+        
+        function skipToConditionElse() {
+            const events = getCurrentEvents();
+            let depth = 1, i = gameState.currentIndex + 1;
+            while (i < events.length && depth > 0) {
+                if (events[i].type === 'condition') depth++;
+                if (events[i].type === 'condition-end') depth--;
+                if (depth === 1 && events[i].type === 'condition-else') {
+                    gameState.currentIndex = i + 1;
+                    processNextEvent();
+                    return;
+                }
+                i++;
+            }
+            gameState.currentIndex = i;
+            processNextEvent();
+        }
+        
+        function skipToConditionEnd() {
+            const events = getCurrentEvents();
+            let depth = 1, i = gameState.currentIndex + 1;
+            while (i < events.length && depth > 0) {
+                if (events[i].type === 'condition') depth++;
+                if (events[i].type === 'condition-end') depth--;
+                i++;
+            }
+            gameState.currentIndex = i;
+            processNextEvent();
+        }
+        
+        // ===== 변수 =====
+        function handleVariable(event) {
+            const name = event.variable;
+            const val = event.value || 0;
+            if (!gameState.variables[name]) gameState.variables[name] = 0;
+            
+            switch (event.operation || 'add') {
+                case 'add': gameState.variables[name] += val; break;
+                case 'sub': gameState.variables[name] -= val; break;
+                case 'set': gameState.variables[name] = val; break;
+            }
+            updateGauges();
+            gameState.currentIndex++;
+            processNextEvent();
+        }
+        
+        function updateGauges() {
+            const u = gameState.variables['understanding'] || 0;
+            const m = gameState.variables['misreading'] || 0;
+            const maxVal = 10;
+            
+            // 모바일 게이지
+            document.querySelectorAll('.mobile-gauge.left .gauge-moon-fill').forEach(el => {
+                el.style.height = Math.min(u / maxVal * 100, 100) + '%';
+            });
+            document.querySelectorAll('.mobile-gauge.right .gauge-moon-fill').forEach(el => {
+                el.style.height = Math.min(m / maxVal * 100, 100) + '%';
+            });
+            
+            // PC 사이드 게이지
+            document.querySelectorAll('.side-decoration.left .moon-gauge-fill').forEach(el => {
+                el.style.height = Math.min(u / maxVal * 100, 100) + '%';
+            });
+            document.querySelectorAll('.side-decoration.right .moon-gauge-fill').forEach(el => {
+                el.style.height = Math.min(m / maxVal * 100, 100) + '%';
+            });
+        }
+        
+        // ===== Day 전환 =====
+        function handleDayTransition(event) {
+            const bgOverlay = document.querySelector('.day-transition-bg');
+            const orbitalSystem = document.querySelector('.orbital-system');
+            const dayText = document.querySelector('.day-text');
+            
+            const nextDay = scenario.dayList?.find(d => d.id === event.nextDay);
+            dayText.textContent = nextDay ? nextDay.name.replace('일차', ' 일 차') : event.nextDay;
+            
+            bgOverlay.classList.add('active');
+            orbitalSystem.classList.add('fast-forward');
+            
+            setTimeout(() => {
+                bgOverlay.classList.remove('active');
+                orbitalSystem.classList.remove('fast-forward');
+                
+                gameState.currentDayId = event.nextDay;
+                gameState.currentIndex = 0;
+                updateDateDisplay();
+                processNextEvent();
+            }, 4500);
+        }
+        
+        function updateDateDisplay() {
+            const moonPhases = document.querySelectorAll('.moon-phase');
+            const dayLabel = document.querySelector('.day-label');
+            if (!scenario.dayList) return;
+            
+            const idx = scenario.dayList.findIndex(d => d.id === gameState.currentDayId);
+            
+            moonPhases.forEach((phase, i) => {
+                phase.classList.remove('past', 'current');
+                if (i < idx) phase.classList.add('past');
+                else if (i === idx) phase.classList.add('current');
+            });
+            
+            dayLabel.textContent = scenario.dayList[idx]?.name || '';
+        }
+        
+        // ===== 점프/커먼 이벤트 =====
+        function handleJump(event) {
+            const events = getCurrentEvents();
+            for (let i = 0; i < events.length; i++) {
+                if (events[i].type === 'label' && events[i].name === event.target) {
+                    gameState.currentIndex = i + 1;
+                    processNextEvent();
+                    return;
+                }
+            }
+            gameState.currentIndex++;
+            processNextEvent();
+        }
+        
+        function handleJumpDay(event) {
+            gameState.currentDayId = event.dayId;
+            gameState.currentIndex = 0;
+            
+            if (event.label) {
+                const events = scenario.days[event.dayId] || [];
+                for (let i = 0; i < events.length; i++) {
+                    if (events[i].type === 'label' && events[i].name === event.label) {
+                        gameState.currentIndex = i + 1;
+                        break;
+                    }
+                }
+            }
+            updateDateDisplay();
+            processNextEvent();
+        }
+        
+        function handleCallCommon(event) {
+            gameState.callStack.push({ dayId: gameState.currentDayId, index: gameState.currentIndex + 1 });
+            gameState.currentDayId = event.commonId;
+            gameState.currentIndex = 0;
+            processNextEvent();
+        }
+        
+        function handleReturn() {
+            if (gameState.callStack.length === 0) { gameState.currentIndex++; processNextEvent(); return; }
+            const ret = gameState.callStack.pop();
+            gameState.currentDayId = ret.dayId;
+            gameState.currentIndex = ret.index;
+            processNextEvent();
+        }
+        
+        // ===== 엔딩 =====
+        function handleEnding(event) {
+            // 대사창 크기 유지하면서 엔딩 표시
+            document.querySelector('.dialogue-text').innerHTML = `
+                <span class="quote">「</span> <span style="color: #d4af37; letter-spacing: 2px;">E N D I N G</span> <span class="quote">」</span>
+                <div style="margin-top: 5px; font-size: 12px; color: #c9d1d9;">${event.endingId || 'END'}</div>
+            `;
+        }
+        
+        // ===== 로그 =====
+        function addToLog(event) {
+            if (event.type !== 'dialogue') return;
+            const char = scenario.characters?.find(c => c.id === event.speaker);
+            gameState.log.push({
+                speaker: event.speaker === 'narration' ? '' : (char?.name || event.speaker),
+                text: event.text
+            });
+        }
+        
+        function openLog() {
+            const content = gameState.log.map(e => `
+                <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    ${e.speaker ? `<div style="color: #d4af37; font-size: 10px; margin-bottom: 3px;">${e.speaker}</div>` : ''}
+                    <div style="color: rgba(232,230,227,0.8); font-size: 12px; line-height: 1.5;">${e.text}</div>
+                </div>
+            `).join('');
+            
+            showPanel('LOG', content);
+        }
+        
+        // ===== 세이브/로드 =====
+        function openSaveLoad(mode) {
+            let content = '';
+            for (let i = 1; i <= 10; i++) {
+                const data = localStorage.getItem(`tacet_save_${i}`);
+                let info = '빈 슬롯';
+                if (data) {
+                    try {
+                        const d = JSON.parse(data);
+                        const day = scenario?.dayList?.find(x => x.id === d.currentDayId);
+                        info = `${day?.name || d.currentDayId} - ${d.savedAt}`;
+                    } catch (e) {}
+                }
+                
+                content += `
+                    <div onclick="${mode}Game(${i})" style="padding: 12px; margin-bottom: 8px; background: rgba(20,20,40,0.5); border: 1px solid rgba(212,175,55,0.2); border-radius: 3px; cursor: pointer;">
+                        <div style="color: #d4af37; font-size: 11px; margin-bottom: 3px;">슬롯 ${i}</div>
+                        <div style="color: rgba(201,209,217,0.5); font-size: 9px;">${info}</div>
+                    </div>
+                `;
+            }
+            
+            showPanel(mode === 'save' ? 'SAVE' : 'LOAD', content);
+        }
+        
+        function saveGame(slot) {
+            localStorage.setItem(`tacet_save_${slot}`, JSON.stringify({
+                currentDayId: gameState.currentDayId,
+                currentIndex: gameState.currentIndex,
+                variables: gameState.variables,
+                log: gameState.log,
+                savedAt: new Date().toLocaleString()
+            }));
+            closePanel();
+            alert('저장되었습니다.');
+        }
+        
+        function loadGame(slot) {
+            const data = localStorage.getItem(`tacet_save_${slot}`);
+            if (!data) { alert('저장된 데이터가 없습니다.'); return; }
+            try {
+                const d = JSON.parse(data);
+                Object.assign(gameState, d);
+                closePanel();
+                updateDateDisplay();
+                updateGauges();
+                processNextEvent();
+            } catch (e) { alert('데이터를 불러올 수 없습니다.'); }
+        }
+        
+        // ===== 패널 =====
+        let panelElement = null;
+        
+        function showPanel(title, content) {
+            if (panelElement) panelElement.remove();
+            
+            panelElement = document.createElement('div');
+            panelElement.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,5,15,0.98); z-index: 50; display: flex; flex-direction: column;';
+            panelElement.innerHTML = `
+                <div style="padding: 15px; border-bottom: 1px solid rgba(212,175,55,0.3); text-align: center;">
+                    <div style="color: #d4af37; font-size: 12px; letter-spacing: 3px;">${title}</div>
+                </div>
+                <div style="flex: 1; overflow-y: auto; padding: 15px;">${content}</div>
+                <div style="padding: 15px; border-top: 1px solid rgba(212,175,55,0.3); text-align: center;">
+                    <button onclick="closePanel()" style="background: none; border: 1px solid rgba(212,175,55,0.5); color: #d4af37; padding: 8px 30px; cursor: pointer; font-family: inherit; font-size: 11px; letter-spacing: 2px;">닫기</button>
+                </div>
+            `;
+            
+            document.querySelector('.game-screen').appendChild(panelElement);
+        }
+        
+        function closePanel() {
+            if (panelElement) {
+                panelElement.remove();
+                panelElement = null;
+            }
+        }
+        
+        // ===== AUTO/SKIP =====
+        function toggleAuto() {
+            gameState.isAutoMode = !gameState.isAutoMode;
+            gameState.isSkipMode = false;
+            
+            document.querySelectorAll('.novel-btn').forEach((btn, i) => {
+                if (i === 2) btn.style.borderColor = gameState.isAutoMode ? '#d4af37' : 'rgba(212,175,55,0.3)';
+                if (i === 3) btn.style.borderColor = 'rgba(212,175,55,0.3)';
+            });
+            
+            if (gameState.isAutoMode && !isTyping) {
+                autoTimer = setTimeout(() => { gameState.currentIndex++; processNextEvent(); }, 2000);
+            }
+        }
+        
+        function toggleSkip() {
+            gameState.isSkipMode = !gameState.isSkipMode;
+            gameState.isAutoMode = false;
+            
+            document.querySelectorAll('.novel-btn').forEach((btn, i) => {
+                if (i === 2) btn.style.borderColor = 'rgba(212,175,55,0.3)';
+                if (i === 3) btn.style.borderColor = gameState.isSkipMode ? '#d4af37' : 'rgba(212,175,55,0.3)';
+            });
+            
+            if (gameState.isSkipMode) { gameState.currentIndex++; processNextEvent(); }
+        }
+        
+        // ===== 클릭 이벤트 =====
+        document.querySelector('.game-screen').addEventListener('click', function(e) {
+            if (panelElement) return;
+            if (document.querySelector('.choices-area').style.display === 'flex') return;
+            if (e.target.closest('.novel-btn') || e.target.closest('.choice-btn') || e.target.closest('.settings-btn')) return;
+            
+            clearTimeout(autoTimer);
+            
+            if (isTyping) {
+                clearTimeout(typingTimer);
+                document.querySelector('.dialogue-text').innerHTML = 
+                    `<span class="quote">「</span> ${currentText} <span class="quote">」</span>`;
+                isTyping = false;
+            } else {
+                gameState.currentIndex++;
+                processNextEvent();
+            }
+        });
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                document.querySelector('.game-screen').click();
+            }
+            if (e.key === 'Escape') closePanel();
+        });
+    </script>
+</body>
+</html>

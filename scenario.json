@@ -1,0 +1,59 @@
+{
+  "config": {
+    "title": "달의 세계",
+    "version": "1.0"
+  },
+  "characters": [
+    { "id": "inhui", "name": "인외", "color": "#569cd6" },
+    { "id": "narration", "name": "나레이션", "color": "#888888" }
+  ],
+  "dayList": [
+    { "id": "day1", "name": "1일차" },
+    { "id": "day2", "name": "2일차" },
+    { "id": "day3", "name": "3일차" },
+    { "id": "day4", "name": "4일차" },
+    { "id": "day5", "name": "5일차" },
+    { "id": "day6", "name": "6일차" },
+    { "id": "day7", "name": "7일차" }
+  ],
+  "days": {
+    "day1": [
+      { "type": "dialogue", "speaker": "narration", "text": "어둠 속에서 눈을 떴다." },
+      { "type": "dialogue", "speaker": "narration", "text": "낯선 공간. 희미한 빛이 어딘가에서 새어 들어온다." },
+      { "type": "dialogue", "speaker": "inhui", "text": "배고프지 않아?" },
+      { "type": "choice" },
+      { "type": "choice-branch", "choiceType": "nod", "label": "끄덕", "effects": { "understanding": 1 } },
+      { "type": "dialogue", "speaker": "inhui", "text": "그렇구나. 뭔가 가져올게." },
+      { "type": "choice-branch", "choiceType": "shake", "label": "젓기", "effects": { "misreading": 1 } },
+      { "type": "dialogue", "speaker": "inhui", "text": "...정말?" },
+      { "type": "dialogue", "speaker": "narration", "text": "그가 고개를 갸웃거린다." },
+      { "type": "choice-end" },
+      { "type": "dialogue", "speaker": "narration", "text": "시간이 흐른다." },
+      { "type": "day-transition", "nextDay": "day2" }
+    ],
+    "day2": [
+      { "type": "dialogue", "speaker": "narration", "text": "다음 날이 밝았다." },
+      { "type": "dialogue", "speaker": "inhui", "text": "잘 잤어?" },
+      { "type": "choice" },
+      { "type": "choice-branch", "choiceType": "nod", "label": "끄덕", "effects": { "understanding": 1 } },
+      { "type": "dialogue", "speaker": "inhui", "text": "다행이야." },
+      { "type": "choice-branch", "choiceType": "shake", "label": "젓기", "effects": { "misreading": 1 } },
+      { "type": "dialogue", "speaker": "inhui", "text": "...불편했어?" },
+      { "type": "choice-end" },
+      { "type": "dialogue", "speaker": "narration", "text": "그의 얼굴에서 감정을 읽기 어렵다." },
+      { "type": "day-transition", "nextDay": "day3" }
+    ],
+    "day3": [
+      { "type": "dialogue", "speaker": "narration", "text": "3일차가 시작되었다." },
+      { "type": "dialogue", "speaker": "inhui", "text": "오늘은 뭘 하고 싶어?" },
+      { "type": "dialogue", "speaker": "narration", "text": "아직 이 세계가 낯설다." },
+      { "type": "ending", "endingId": "demo_end" }
+    ],
+    "day4": [],
+    "day5": [],
+    "day6": [],
+    "day7": []
+  },
+  "commonList": [],
+  "commons": {}
+}
