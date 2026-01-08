@@ -3081,13 +3081,16 @@
                 isAutoMode: false,
                 isSkipMode: false,
                 fullscreenMode: false,
-                fullscreenCommonId: null
+                fullscreenCommonId: null,
+                waitingForChoice: false
             };
             
-            // 첫 아이템이 전체화면 커먼이면 활성화
+            // 첫 아이템이 전체화면 커먼인지 확인
+            let isFullscreenStart = false;
             if (firstItem?.type === 'common') {
                 const commonInfo = scenario.commonList?.find(c => c.id === firstItem.id);
                 if (commonInfo?.fullscreen) {
+                    isFullscreenStart = true;
                     enterFullscreenMode(firstItem.id);
                 }
             }
@@ -3104,8 +3107,13 @@
             document.querySelector('.dialogue-box').style.display = 'none';
             document.querySelector('.choices-area').style.display = 'none';
             
-            // 인트로 애니메이션 시작
-            playIntroAnimation();
+            // 전체화면 시작이면 인트로 애니메이션 스킵하고 바로 시작
+            if (isFullscreenStart) {
+                processNextEvent();
+            } else {
+                // 인트로 애니메이션 시작
+                playIntroAnimation();
+            }
         }
         
         function playIntroAnimation() {
@@ -3180,7 +3188,10 @@
             
             // 6. 게임 시작 (2800ms)
             setTimeout(() => {
-                document.querySelector('.dialogue-box').style.display = 'block';
+                // 전체화면 모드가 아닐 때만 dialogue-box 표시
+                if (!gameState.fullscreenMode) {
+                    document.querySelector('.dialogue-box').style.display = 'block';
+                }
                 processNextEvent();
             }, 2800);
         }
@@ -3220,8 +3231,9 @@
         function advanceTimeline() {
             if (!scenario.timeline) return;
             
-            // 전체화면 모드 종료
-            if (gameState.fullscreenMode) {
+            // 전체화면 모드였다면 종료
+            const wasFullscreen = gameState.fullscreenMode;
+            if (wasFullscreen) {
                 exitFullscreenMode();
             }
             
@@ -3237,16 +3249,27 @@
             gameState.currentDayId = nextItem.id;
             gameState.currentIndex = 0;
             
-            // 전체화면 커먼 체크
+            // 다음 아이템이 전체화면 커먼인지 체크
+            let nextIsFullscreen = false;
             if (nextItem.type === 'common') {
                 const commonInfo = scenario.commonList?.find(c => c.id === nextItem.id);
                 if (commonInfo?.fullscreen) {
+                    nextIsFullscreen = true;
                     enterFullscreenMode(nextItem.id);
                 }
             }
             
-            updateDateDisplay();
-            processNextEvent();
+            // 전체화면에서 일반 모드로 전환되면 인트로 애니메이션 재생
+            if (wasFullscreen && !nextIsFullscreen) {
+                playIntroAnimation();
+            } else {
+                // 일반 모드에서 일반 모드 또는 전체화면 모드면 바로 진행
+                if (!nextIsFullscreen) {
+                    document.querySelector('.dialogue-box').style.display = 'block';
+                }
+                updateDateDisplay();
+                processNextEvent();
+            }
         }
         
         function showEndingScreen() {
